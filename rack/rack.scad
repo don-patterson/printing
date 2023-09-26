@@ -1,4 +1,4 @@
-// Short shelf for annoying fridge drawer that takes on water
+// Short shelf/rack thing (keeps veggies out of standing water from our annoying fridge internal leaking)
 
 module grid(lenx=140, nx=8, leny=165, ny=4) {
   width = 3;
