@@ -19,7 +19,8 @@ module fins(
   end = end + margin;
   w = w + 2*margin;
   d = h + 2*margin;
-  // kinda don't care about length and height for the cutout margin
+  // it's kinda complicated to get the length/height margin right with the angled edge
+  // and also maybe not that useful, so I'm leaving it out for now.
 
   for (i=[0:count - 1])
     translate([0, 0, start + i * (end - w - start) / (count - 1)])
@@ -29,7 +30,6 @@ module fins(
         circle(d=d);
       }
 }
-
 
 module pin(
   start,
@@ -42,11 +42,33 @@ module pin(
   r = r + margin;
   h = end - start + 2*margin;
   translate([0, 0, start-margin])
-  cylinder(r=r, h=h);
+    cylinder(r=r, h=h);
 }
 
+module cuff(
+  start,
+  end,
+  r=prop("hinge.radius"),
+) {
+  difference() {
+    translate([0, 0, start])
+      cylinder(r=r, h=end-start);
+    pin(start=start+1, end=end-1, mode="margin");
+    fins(start=5, end=55, mode="margin");
+  }
+}
+
+translate([0, 30, 0]) {
+  fins(start=5, end=55);
+  pin(start=0, end=60);
+  %pin(start=0, end=60, mode="margin");
+  %fins(start=5, end=55, mode="margin");
+}
+
+translate([0, 15, 0]) {
+  cuff(start=0, end=60);
+}
 
 fins(start=5, end=55);
 pin(start=0, end=60);
-%pin(start=0, end=60, mode="margin");
-%fins(start=5, end=55, mode="margin");
+cuff(start=0, end=60);

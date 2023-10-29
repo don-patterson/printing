@@ -2,14 +2,15 @@ use <../util/strings.scad>
 
 // Global properties
 props = [
+  ["hinge.radius", 4],
   ["hinge.fin.length", 40],
   ["hinge.fin.width", 3],
-  ["hinge.fin.height", 8],
+  ["hinge.fin.height", "$hinge.radius * 2"],
   ["hinge.fin.count", 5],
-  ["hinge.fin.margin", 1],
+  ["hinge.fin.margin", 0.3],
   ["hinge.fin.taper.angle", 30],
-  ["hinge.pin.radius", 3],
-  ["hinge.pin.margin", 1],
+  ["hinge.pin.radius", 2],
+  ["hinge.pin.margin", 0.2],
 ];
 
 function eval(lhs, op, rhs) =
