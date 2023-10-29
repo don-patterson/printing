@@ -1,3 +1,5 @@
+use <../util/strings.scad>
+
 // Global properties
 props = [
   ["hinge.fin.length", 40],
@@ -10,17 +12,26 @@ props = [
   ["hinge.pin.margin", 1],
 ];
 
-// ridiculous, but this is all I can think of to do a substring
-function substr(s, start=0, end=-1) =
-  let (end = end < 0 ? len(s)+end : end)
-  chr([for (i=[start:end]) ord(s[i])]);
+function eval(lhs, op, rhs) =
+  op == "/" ? lhs / rhs
+  : op == "*" ? lhs * rhs
+  : op == "+" ? lhs + rhs
+  : op == "-" ? lhs - rhs
+  : undef;
 
-// get the value from the list, following "&key" references
 function prop(key, props=props) =
-  let (value = props[search([key], props)[0]][1],
-       result = (is_string(value) && len(value) > 0 && value[0] == "&")
-          ? prop(substr(value, 1), props)
-          : value)
-  assert(result != undef, str("Missing key in global properties: ", key))
-  result;
-
+  let (entry = props[search([key], props)[0]][1])
+  assert (entry, str("Missing key in global properties: ", key))
+  is_num(entry)
+  ? entry
+  : contains(entry, " ")
+    ? let (
+        expr = split(entry, " "),
+        lhs = expr[0][0] == "$" ? prop(substr(expr[0], start=1)) : num(expr[0]),
+        op = expr[1],
+        rhs = expr[2][0] == "$" ? prop(substr(expr[2], start=1)) : num(expr[2])
+      )
+      eval(lhs, op, rhs)
+    : entry[0] != "$"
+        ? entry
+        : prop(substr(entry, start=1), props=props);

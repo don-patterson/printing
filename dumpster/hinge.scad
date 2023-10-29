@@ -19,7 +19,7 @@ module fins(
   end = end + margin;
   w = w + 2*margin;
   d = h + 2*margin;
-  // kinda don't care about length and heigth for the cutout margin
+  // kinda don't care about length and height for the cutout margin
 
   for (i=[0:count - 1])
     translate([0, 0, start + i * (end - w - start) / (count - 1)])
