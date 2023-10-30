@@ -8,9 +8,7 @@ function int(s, total=0, i=0) = (i == len(s))
     ? total
     : int(s, total*10 + ord(s[i]) - ord("0"), i+1);
 
-function frac(s, total=0, i=0) = (i == len(s))
-  ? total
-  : frac(s, total + pow(10, -(i+1)) * (ord(s[i]) - ord("0")), i+1);
+function frac(s) = int(s) / pow(10, len(s));
 
 function num(s) =
   let (parts = split(s, "."))
@@ -39,9 +37,11 @@ function _test() =
   assert (int("123") == 123)
   assert (int("9999") == 9999)
   assert (frac("5") == 0.5)
-  assert (abs(frac("333") - 0.333) < .00001)  // float math isn't great
+  assert (frac("33333") == 0.33333)
+  assert (frac("111111") == 0.111111)
   assert (num("123") == 123)
   assert (num("2.75") == 2.75)
+  assert (num("1234.991230149") == 1234.991230149) // I'm kinda shocked that works
   assert (split("abc,defg,hi", ",") == ["abc", "defg", "hi"])
   assert (split("abc,defg,hi", "#") == ["abc,defg,hi"])
   assert (contains("abcd", "d") == true)
