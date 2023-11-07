@@ -39,6 +39,11 @@ function _test() =
   assert (frac("5") == 0.5)
   assert (frac("33333") == 0.33333)
   assert (frac("111111") == 0.111111)
+  assert (frac("02") == 0.02)
+  assert (frac("020000") == 0.02)
+  assert (frac("0") == 0)
+  assert (frac("0000000000000") == 0)
+  assert (frac("0000000000001") == 0.0000000000001)
   assert (num("123") == 123)
   assert (num("2.75") == 2.75)
   assert (num("1234.991230149") == 1234.991230149) // I'm kinda shocked that works
