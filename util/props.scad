@@ -1,13 +1,13 @@
 // Zany scheme to have globally shared variables, but somewhat namespaced
 // inspired by https://www.reddit.com/r/openscad/comments/15qzwqx/comment/jwoub3h/
 //
-// Copy this file into your project directory and define all of the global variables
-// here. Other files can then `use` this to have access to shared variables without
-// having to worry about naming collisions and defaults everywhere, etc.
+// Usage: Define your global_props similar to this example, and
+// define a "prop" function to use in your modules like:
+//   function prop(key) = getprop(key, global_props);
 
-use <../util/strings.scad>
+use <./strings.scad>
 
-props = [
+props_example = [
   ["key1", 1],
   ["key2", 2],
   ["key3", 3],
@@ -20,14 +20,14 @@ props = [
   ["e3", "$othernamespace.value1 * 6"],
 ];
 
-function eval(lhs, op, rhs) =
+function _eval(lhs, op, rhs) =
   op == "/" ? lhs / rhs
   : op == "*" ? lhs * rhs
   : op == "+" ? lhs + rhs
   : op == "-" ? lhs - rhs
   : undef;
 
-function prop(key, props=props) =
+function getprop(key, props) =
   let (entry = props[search([key], props)[0]][1])
   assert (entry, str("Missing key in global properties: ", key))
   is_num(entry)
@@ -35,22 +35,22 @@ function prop(key, props=props) =
   : contains(entry, " ")
     ? let (
         expr = split(entry, " "),
-        lhs = expr[0][0] == "$" ? prop(substr(expr[0], start=1)) : num(expr[0]),
+        lhs = expr[0][0] == "$" ? getprop(substr(expr[0], start=1), props) : num(expr[0]),
         op = expr[1],
-        rhs = expr[2][0] == "$" ? prop(substr(expr[2], start=1)) : num(expr[2])
+        rhs = expr[2][0] == "$" ? getprop(substr(expr[2], start=1), props) : num(expr[2])
       )
-      eval(lhs, op, rhs)
+      _eval(lhs, op, rhs)
     : entry[0] != "$"
         ? entry
-        : prop(substr(entry, start=1), props=props);
+        : getprop(substr(entry, start=1), props);
 
 function _test() =
-  assert (prop("key3") == 3)
-  assert (prop("namespace.value2") == 2)
-  assert (prop("e1") == 1.5)
-  assert (prop("e2") == 3.275)
-  assert (prop("e3") == 12)
-  assert (prop("s") == "hello")
+  assert (getprop("key3", props_example) == 3)
+  assert (getprop("namespace.value2", props_example) == 2)
+  assert (getprop("e1", props_example) == 1.5)
+  assert (getprop("e2", props_example) == 3.275)
+  assert (getprop("e3", props_example) == 12)
+  assert (getprop("s", props_example) == "hello")
   "success";
 
 echo(_test());
