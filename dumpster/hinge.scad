@@ -3,9 +3,9 @@ use <props.scad>
 $fn = $preview ? 30 : 128;
 
 
-module fins(
-  start,
-  end,
+module _fins(
+  start=prop("hinge.fin.start"),
+  end=prop("hinge.fin.end"),
   count=prop("hinge.fin.count"),
   l=prop("hinge.fin.length"),
   w=prop("hinge.fin.width"),
@@ -31,9 +31,9 @@ module fins(
       }
 }
 
-module pin(
-  start,
-  end,
+module _pin(
+  start=prop("hinge.pin.start"),
+  end=prop("hinge.pin.end"),
   r=prop("hinge.pin.radius"),
   margin=prop("hinge.pin.margin"),
   mode="normal",
@@ -45,30 +45,38 @@ module pin(
     cylinder(r=r, h=h);
 }
 
-module cuff(
-  start,
-  end,
+module _cuff(
+  start=0,
+  end=prop("hinge.length"),
   r=prop("hinge.radius"),
 ) {
   difference() {
     translate([0, 0, start])
       cylinder(r=r, h=end-start);
-    pin(start=start+1, end=end-1, mode="margin");
-    fins(start=5, end=55, mode="margin");
+    _pin(mode="margin");
+    _fins(mode="margin");
   }
 }
 
+translate([0, 45, 0]) {
+  _fins();
+  %_fins(mode="margin");
+}
+
 translate([0, 30, 0]) {
-  fins(start=5, end=55);
-  pin(start=0, end=60);
-  %pin(start=0, end=60, mode="margin");
-  %fins(start=5, end=55, mode="margin");
+  _pin();
+  %_pin(mode="margin");
 }
 
 translate([0, 15, 0]) {
-  cuff(start=0, end=60);
+  _cuff();
 }
 
-fins(start=5, end=55);
-pin(start=0, end=60);
-cuff(start=0, end=60);
+
+module hinge() {
+  _fins();
+  _pin();
+  _cuff();
+}
+
+hinge();
