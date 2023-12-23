@@ -16,7 +16,20 @@ function num(s) =
     ? int(parts[0])
     : int(parts[0]) + frac(parts[1]);
 
-function split(s, separator, parts=[]) =
+function any(items) = max([for (i = items) i ? 1 : 0]) == 1;
+
+function all(items) = min([for (i = items) i ? 1 : 0]) == 1;
+
+function is_int_string(s) = all([for(c = s) c=="0" || c=="1" || c=="2" || c=="3" || c=="4" || c=="5" || c=="6" || c=="7" || c=="8" || c=="9"]);
+
+function is_num_string(s) = let (parts = split(s, "."))
+  len(parts) == 1
+    ? is_int_string(parts[0])
+    : len(parts) == 2
+      ? is_int_string(parts[0]) && is_int_string(parts[1])
+      : false;
+
+function split(s, separator=" ", parts=[]) =
     // breaks on a few edge cases: ",abc,def" and "abc,,def" etc
     // probably because my substr function can't do empty slices
     let (i=search(separator, s, 0)[0])
@@ -49,8 +62,23 @@ function _test() =
   assert (num("1234.991230149") == 1234.991230149) // I'm kinda shocked that works
   assert (split("abc,defg,hi", ",") == ["abc", "defg", "hi"])
   assert (split("abc,defg,hi", "#") == ["abc,defg,hi"])
+  assert (split("abcd") == ["abcd"])
   assert (contains("abcd", "d") == true)
   assert (contains("abcd", "Q") == false)
+  assert (is_int_string("1234") == true)
+  assert (is_int_string("093999914") == true)
+  assert (is_int_string("123A") == false)
+  assert (is_int_string("two") == false)
+  assert (is_num_string("2.6") == true)
+  assert (is_num_string("1241422.5522106") == true)
+  assert (is_num_string("124142205522106") == true)
+  assert (is_num_string("1241422,5522106") == false)
+  assert (is_num_string("1241422Q") == false)
+  assert (all([1, true, "a"]) == true)
+  assert (all([1, true, "a", ""]) == false)
+  assert (any([false, "", 0, []]) == false)
+  assert (any([false, "", 0, [], 1]) == true)
+
   "success";
 
 echo(_test());
