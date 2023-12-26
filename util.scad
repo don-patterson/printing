@@ -48,9 +48,12 @@ function is_num_string(s) = let (parts = split(s, "."))
       ? is_int_string(parts[0]) && is_int_string(parts[1])
       : false;
 
-function substr(s, start=0, end=-1) =
-  let (end = end < 0 ? len(s)+end : end)
-  chr([for (i=[start:end]) ord(s[i])]);
+function substr(s, start=0, limit=undef) =
+  // return str[i] where start <= i < limit
+  let (end = limit == undef ? len(s)-1 : limit-1)
+  end < start
+  ? ""
+  : chr([for (i=[start:end]) ord(s[i])]);
 
 function split(s, separator=" ", parts=[]) =
     // breaks on a few edge cases: ",abc,def" and "abc,,def" etc
@@ -58,7 +61,7 @@ function split(s, separator=" ", parts=[]) =
     let (i=search(separator, s, 0)[0])
     i == []
       ? concat(parts, [s])
-      : split(substr(s, start=i[0]+1), separator, concat(parts, [substr(s, end=i[0]-1)]));
+      : split(substr(s, start=i[0]+1), separator, concat(parts, [substr(s, limit=i[0])]));
 
 function contains(string, char, i=0) = (i == len(string))
     ? false
@@ -66,12 +69,11 @@ function contains(string, char, i=0) = (i == len(string))
 
 function _test_strings() =
   assert (substr("abcde", start=1) == "bcde")
-  assert (substr("abcde", end=2) == "abc")
-  assert (substr("abcde", start=2, end=3) == "cd")
-  assert (substr("abcde", end=-2) == "abcd")
-  assert (substr("abcde", start=3, end=-2) == "d")
+  assert (substr("abcde", limit=3) == "abc")
+  assert (substr("abcde", start=2, limit=4) == "cd")
   assert (split("abc,defg,hi", ",") == ["abc", "defg", "hi"])
   assert (split("abc,defg,hi", "#") == ["abc,defg,hi"])
+  assert (split(",,ab,c,,d,efg", ",") == ["", "", "ab", "c", "", "d", "efg"])
   assert (split("abcd") == ["abcd"])
   assert (contains("abcd", "d") == true)
   assert (contains("abcd", "Q") == false)
