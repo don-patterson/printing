@@ -1,4 +1,4 @@
-use <../util/bezier.scad>
+use <../util.scad>
 
 // smoothing
 $fn = 256;

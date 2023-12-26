@@ -2,7 +2,6 @@ use <props.scad>
 
 $fn = $preview ? 30 : 128;
 
-
 module _fins(
   start=prop("hinge.fin.start"),
   end=prop("hinge.fin.end"),

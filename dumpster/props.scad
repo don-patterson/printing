@@ -1,4 +1,4 @@
-use <../util/props.scad>
+use <../util.scad>
 
 global_props = [
   // basic dimensions
