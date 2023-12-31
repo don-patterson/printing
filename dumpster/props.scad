@@ -7,7 +7,6 @@ global_props = [
   ["box.height", 60],
   ["box.extra.height", 12],
 
-
   // hinge
   ["hinge.radius", 4.33333],
   ["hinge.length", 120],

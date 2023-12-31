@@ -67,6 +67,18 @@ function contains(string, char, i=0) = (i == len(string))
     ? false
     : string[i] == char || contains(string, char, i+1);
 
+function first(string, char) =
+  let (i=search(char, string, 0))
+  i == []
+    ? undef
+    : i[0][0];
+
+function last(string, char) =
+  let (i=search(char, string, 0))
+  i == []
+    ? undef
+    : i[0][len(i[0])-1];
+
 function _test_strings() =
   assert (substr("abcde", start=1) == "bcde")
   assert (substr("abcde", limit=3) == "abc")
@@ -74,6 +86,7 @@ function _test_strings() =
   assert (split("abc,defg,hi", ",") == ["abc", "defg", "hi"])
   assert (split("abc,defg,hi", "#") == ["abc,defg,hi"])
   assert (split(",,ab,c,,d,efg", ",") == ["", "", "ab", "c", "", "d", "efg"])
+  assert (split("a b  cd ") == ["a", "b", "", "cd", ""])
   assert (split("abcd") == ["abcd"])
   assert (contains("abcd", "d") == true)
   assert (contains("abcd", "Q") == false)
@@ -86,6 +99,14 @@ function _test_strings() =
   assert (is_num_string("124142205522106") == true)
   assert (is_num_string("1241422,5522106") == false)
   assert (is_num_string("1241422Q") == false)
+  assert (first("aaaaa", "a") == 0)
+  assert (first("00aaa", "a") == 2)
+  assert (first("0000a", "a") == 4)
+  assert (first("0000a", "Z") == undef)
+  assert (last("aaaaa", "a") == 4)
+  assert (last("aaa00", "a") == 2)
+  assert (last("a0000", "a") == 0)
+  assert (last("a0000", "Z") == undef)
   "test strings success";
 
 echo(_test_strings());
