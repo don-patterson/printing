@@ -67,22 +67,27 @@ function contains(string, char, i=0) = (i == len(string))
     ? false
     : string[i] == char || contains(string, char, i+1);
 
-function first(string, char) =
-  let (i=search(char, string, 0))
-  i == []
+function first(string, char, after=undef) =
+  let (
+    s = after == undef ? string : substr(string, start=after+1),
+    offset = after == undef ? 0 : after+1,
+    result = search(char, s, 1)
+  )
+  result == []
     ? undef
-    : i[0][0];
+    : result[0] + offset;
 
 function last(string, char) =
-  let (i=search(char, string, 0))
-  i == []
+  let (result=search(char, string, 0))
+  result == []
     ? undef
-    : i[0][len(i[0])-1];
+    : result[0][len(result[0])-1];
 
 function _test_strings() =
   assert (substr("abcde", start=1) == "bcde")
   assert (substr("abcde", limit=3) == "abc")
   assert (substr("abcde", start=2, limit=4) == "cd")
+  assert (substr("abcde", start=99) == "")
   assert (split("abc,defg,hi", ",") == ["abc", "defg", "hi"])
   assert (split("abc,defg,hi", "#") == ["abc,defg,hi"])
   assert (split(",,ab,c,,d,efg", ",") == ["", "", "ab", "c", "", "d", "efg"])
@@ -103,6 +108,10 @@ function _test_strings() =
   assert (first("00aaa", "a") == 2)
   assert (first("0000a", "a") == 4)
   assert (first("0000a", "Z") == undef)
+  assert (first("aaaaa", "a", after=2) == 3)
+  assert (first("aaa00", "a", after=2) == undef)
+  assert (first("a000a", "a", after=0) == 4)
+  assert (first("a000a", "a", after=99) == undef)
   assert (last("aaaaa", "a") == 4)
   assert (last("aaa00", "a") == 2)
   assert (last("a0000", "a") == 0)
