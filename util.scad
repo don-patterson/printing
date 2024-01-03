@@ -1,21 +1,29 @@
 // numbers and logic
 function int(s, total=0, i=0) = (i == len(s))
-    ? total
-    : int(s, total*10 + ord(s[i]) - ord("0"), i+1);
+  ? total
+  : int(s, total*10 + ord(s[i]) - ord("0"), i+1);
 
 function frac(s) = int(s) / pow(10, len(s));
 
 function num(s) =
   let (parts = split(s, "."))
   len(parts) == 1
-    ? int(parts[0])
-    : int(parts[0]) + frac(parts[1]);
+  ? int(parts[0])
+  : int(parts[0]) + frac(parts[1]);
 
-function any(items) = max([for (i = items) i ? 1 : 0]) == 1;
+function contains(list, item, i=0) = (i == len(list))
+  ? false
+  : list[i] == item || contains(list, item, i+1);
 
-function all(items) = min([for (i = items) i ? 1 : 0]) == 1;
+function any(list, i=0) = (i == len(list))
+  ? false
+  : list[i] || any(list, i+1);
 
-function _test_numbers() =
+function all(list, i=0) = (i == len(list))
+  ? true
+  : list[i] && all(list, i+1);
+
+function _test_logic() =
   assert (int("123") == 123)
   assert (int("9999") == 9999)
   assert (frac("5") == 0.5)
@@ -29,72 +37,95 @@ function _test_numbers() =
   assert (num("123") == 123)
   assert (num("2.75") == 2.75)
   assert (num("1234.991230149") == 1234.991230149) // I'm kinda shocked that works
+  assert (contains("abcd", "d") == true)
+  assert (contains("abcd", "Q") == false)
+  assert (contains([1, 2, 3, 4], 1) == true)
+  assert (contains([1, 2, 3, 4], 5) == false)
+  assert (contains([["a"], 2, [], ""], []) == true)
+  assert (contains([["a"], 2, [], ""], ["a"]) == true)
+  assert (contains([["a"], 2, [], ""], ["b"]) == false)
   assert (all([1, true, "a"]) == true)
   assert (all([1, true, "a", ""]) == false)
+  assert (all([]) == true)
   assert (any([false, "", 0, []]) == false)
   assert (any([false, "", 0, [], 1]) == true)
-  "test numbers success";
+  assert (any([]) == false)
+  "test logic success";
 
-echo(_test_numbers());
+echo(_test_logic());
 
 
 // strings
-function is_int_string(s) = all([for(c = s) c=="0" || c=="1" || c=="2" || c=="3" || c=="4" || c=="5" || c=="6" || c=="7" || c=="8" || c=="9"]);
+function is_int_string(s) = all([for(c=s) "0" <= c && c <= "9"]);
 
-function is_num_string(s) = let (parts = split(s, "."))
+function is_num_string(s) =
+  let (parts = split(s, "."))
   len(parts) == 1
-    ? is_int_string(parts[0])
-    : len(parts) == 2
-      ? is_int_string(parts[0]) && is_int_string(parts[1])
-      : false;
+  ? is_int_string(parts[0])
+  : len(parts) == 2
+    ? is_int_string(parts[0]) && is_int_string(parts[1])
+    : false;
+
+function strcat(char_array, i=0, r="") = (i == len(char_array))
+  ? r
+  : strcat(char_array, i+1, str(r, char_array[i]));
 
 function substr(s, start=0, limit=undef) =
   // return str[i] where start <= i < limit
-  let (end = limit == undef ? len(s)-1 : limit-1)
+  let (end = limit == undef ? len(s)-1 : min(limit-1, len(s)-1))
   end < start
   ? ""
-  : chr([for (i=[start:end]) ord(s[i])]);
+  : strcat([for (i=[start:end]) s[i]]);
+
+function replace_substr(s, repl, start=0, limit=undef) =
+  // remove a substring and replace it with another string
+  let (end = limit == undef ? len(s)-1 : limit-1)
+  str(substr(s, limit=start), repl, substr(s, start=end+1));
 
 function split(s, separator=" ", parts=[]) =
-    // breaks on a few edge cases: ",abc,def" and "abc,,def" etc
-    // probably because my substr function can't do empty slices
-    let (i=search(separator, s, 0)[0])
-    i == []
-      ? concat(parts, [s])
-      : split(substr(s, start=i[0]+1), separator, concat(parts, [substr(s, limit=i[0])]));
+  let (match=search(separator, s, 0)[0])
+  match == []
+  ? concat(parts, [s])
+  : split(substr(s, start=match[0]+1), separator, concat(parts, [substr(s, limit=match[0])]));
 
-function contains(string, char, i=0) = (i == len(string))
-    ? false
-    : string[i] == char || contains(string, char, i+1);
-
-function first(string, char, after=undef) =
-  let (
-    s = after == undef ? string : substr(string, start=after+1),
-    offset = after == undef ? 0 : after+1,
-    result = search(char, s, 1)
-  )
+function first(string, char, after=-1) =
+  let (result = search(char, substr(string, start=after+1), 1))
   result == []
-    ? undef
-    : result[0] + offset;
+  ? undef
+  : result[0] + after+1;
 
 function last(string, char) =
   let (result=search(char, string, 0))
   result == []
-    ? undef
-    : result[0][len(result[0])-1];
+  ? undef
+  : result[0][len(result[0])-1];
 
 function _test_strings() =
+  assert (strcat([]) == "")
+  assert (strcat(["a"]) == "a")
+  assert (strcat(["a", "b"]) == "ab")
+  assert (strcat(["a", "", "b"]) == "ab")
+  assert (substr("abcde") == "abcde")
+  assert (substr("abcde", start=0) == "abcde")
   assert (substr("abcde", start=1) == "bcde")
   assert (substr("abcde", limit=3) == "abc")
   assert (substr("abcde", start=2, limit=4) == "cd")
   assert (substr("abcde", start=99) == "")
+  assert (replace_substr("abcde", "CD", start=2, limit=4) == "abCDe")
+  assert (replace_substr("abcde", "CD", start=2, limit=5) == "abCD")
+  assert (replace_substr("abcde", "CD", start=2, limit=999) == "abCD")
+  assert (replace_substr("abcde", "CD", start=2) == "abCD")
+  assert (replace_substr("abcde", "AAA", start=0) == "AAA")
+  assert (replace_substr("abcde", "AAA") == "AAA")
+  assert (replace_substr("abcde", "III", limit=0) == "IIIabcde")
+  assert (replace_substr("abcde", "III", start=3, limit=3) == "abcIIIde")
+  assert (replace_substr("abcde", "III", start=5) == "abcdeIII")
+  assert (replace_substr("abcde", "III", start=999) == "abcdeIII")
   assert (split("abc,defg,hi", ",") == ["abc", "defg", "hi"])
   assert (split("abc,defg,hi", "#") == ["abc,defg,hi"])
   assert (split(",,ab,c,,d,efg", ",") == ["", "", "ab", "c", "", "d", "efg"])
   assert (split("a b  cd ") == ["a", "b", "", "cd", ""])
   assert (split("abcd") == ["abcd"])
-  assert (contains("abcd", "d") == true)
-  assert (contains("abcd", "Q") == false)
   assert (is_int_string("1234") == true)
   assert (is_int_string("093999914") == true)
   assert (is_int_string("123A") == false)
@@ -137,9 +168,13 @@ props_example = [
   ["e4", "$key2 ^ 6"],
   ["e5", "$key3 % 2"],
   ["e6", "cos $key4"],
+  ["p1", "$key3 * ($key2 + $key1)"],
+  ["p2", "(1 + 2) * (2 ^ 3)"],
+  ["p3", "((1 + $e5) + 1) + (cos $key4)"],
 ];
 
-function _eval(args) =
+function eval_literal(args) =
+  // compute things like `2 + 4` or `cos 45`
   len(args) == 3
   ? args[1] == "/" ? args[0] / args[2]
     : args[1] == "*" ? args[0] * args[2]
@@ -156,26 +191,35 @@ function _eval(args) =
       : args[0] == "acos" ? acos(args[1])
       : args[0] == "atan" ? atan(args[1])
       : undef
-    : undef;
+    : len(args) == 1
+      ? args[0]
+      : undef;
 
-function _resolve(items, props) = [for (i = items)
-    is_string(i) && len(i) > 0
-    ? i[0] == "$"
-      ? getprop(substr(i, start=1), props)
-      : is_num_string(i)
-        ? num(i)
-        : i
-    : i
-];
+function eval_raw(expression, props) =
+  // resolve types and props in expressions, like "(cos $thing) * ($other / 3)"
+  // note that whitespace is not ignored
+  !is_string(expression)
+  ? expression
+  : !contains(expression, "(")
+    ? // simple expression like "$thing + 5"
+      eval_literal([
+        for (arg=split(expression))
+          arg[0] == "$"
+          ? getprop(substr(arg, start=1), props)
+          : is_num_string(arg)
+            ? num(arg)
+            : arg
+      ])
+    : // resolve the innermost parens and start again
+      let (inner_start = last(expression, "("),
+           inner_end = first(expression, ")", after=inner_start),
+           inner = eval_raw(substr(expression, inner_start+1, inner_end), props))
+      eval_raw(replace_substr(expression, inner, inner_start, inner_end+1), props);
 
 function getprop(key, props) =
   let (entry = props[search([key], props)[0]][1])
-  assert (entry, str("Missing key in global properties: ", key))
-  is_num(entry)
-  ? entry
-  : contains(entry, " ")
-    ? _eval(_resolve(split(entry), props))
-    : _resolve([entry], props_example)[0];
+  assert (entry, str("Missing key in properties: ", key))
+  eval_raw(entry, props);
 
 function _test_props() =
   assert (getprop("key3", props_example) == 3)
@@ -186,20 +230,22 @@ function _test_props() =
   assert (getprop("e4", props_example) == 64)
   assert (getprop("e5", props_example) == 1)
   assert (getprop("e6", props_example) == 0.5)
+  assert (getprop("p1", props_example) == 9)
+  assert (getprop("p2", props_example) == 24)
+  assert (getprop("p3", props_example) == 3.5)
   assert (getprop("s", props_example) == "hello")
   "test props success";
 
 echo(_test_props());
 
 // bezier
-
 function bezier(points, count=30) =
-    // Generate points along the bezier curve for a given list of control points
-    len(points) == 1
-      ? [for (i=[0:count-1]) points[0]]
-      : let (head=bezier([for (i=[0:len(points)-2]) points[i]], count),
-             tail=bezier([for (i=[1:len(points)-1]) points[i]], count))
-        [for (i=[0:count-1]) head[i] + (tail[i] - head[i]) * i / (count-1)];
+  // Generate points along the bezier curve for a given list of control points
+  len(points) == 1
+  ? [for (i=[0:count-1]) points[0]]
+  : let (head=bezier([for (i=[0:len(points)-2]) points[i]], count),
+         tail=bezier([for (i=[1:len(points)-1]) points[i]], count))
+    [for (i=[0:count-1]) head[i] + (tail[i] - head[i]) * i / (count-1)];
 
 /*// Demo
 
