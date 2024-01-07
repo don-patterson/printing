@@ -175,6 +175,8 @@ props_example = [
 
 function eval_literal(args) =
   // compute things like `2 + 4` or `cos 45`
+  len(args) == 0 ? undef :
+  args[0] == "norm" ? norm([for(i=[1:len(args)-1]) args[i]]) :
   len(args) == 3
   ? args[1] == "/" ? args[0] / args[2]
     : args[1] == "*" ? args[0] * args[2]
@@ -190,6 +192,7 @@ function eval_literal(args) =
       : args[0] == "asin" ? asin(args[1])
       : args[0] == "acos" ? acos(args[1])
       : args[0] == "atan" ? atan(args[1])
+      : args[0] == "sqrt" ? sqrt(args[1])
       : undef
     : len(args) == 1
       ? args[0]
@@ -217,9 +220,9 @@ function eval_raw(expression, props) =
       eval_raw(replace_substr(expression, inner, inner_start, inner_end+1), props);
 
 function getprop(key, props) =
-  let (entry = props[search([key], props)[0]][1])
-  assert (entry, str("Missing key in properties: ", key))
-  eval_raw(entry, props);
+  let (prop = props[search([key], props)[0]][1])
+  assert (prop, str("Missing key in properties: ", key))
+  eval_raw(prop, props);
 
 function _test_props() =
   assert (getprop("key3", props_example) == 3)
