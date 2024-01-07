@@ -8,7 +8,9 @@ global_props = [
   ["box.back.height", 72],
   ["panel.thickness", 2],
 
-  // hinge
+  // lid/hinge
+  ["lid.angle", "atan ($box.depth / ($box.back.height - $box.front.height))"],
+  ["lid.length", "norm $box.depth ($box.back.height - $box.front.height)"],
   ["hinge.radius", 4.33333],
   ["hinge.length", 120],
   // hinge fin position
@@ -26,10 +28,6 @@ global_props = [
   ["hinge.pin.margin", 0.2],
   ["hinge.pin.start", 2],
   ["hinge.pin.end", "$hinge.length - $hinge.pin.start"],
-
-  // lid
-  ["lid.angle", "atan ($box.depth / ($box.back.height - $box.front.height))"],
-  ["lid.length", "norm $box.depth ($box.back.height - $box.front.height)"],
 ];
 
 function prop(key) = getprop(key, global_props);

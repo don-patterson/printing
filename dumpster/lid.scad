@@ -82,15 +82,16 @@ module _top(
 // _cuff();
 
 
-module lid(angle=prop("lid.angle")) {
-  rotate([angle-90, 0, 0]) {
-    _top();
-    rotate([90, 0, 90]) {
-      _fins();
-      _pin();
-      _cuff();
+module lid(angle=0) {
+  translate([0, 0, prop("box.back.height")-prop("hinge.radius")])
+    rotate([angle+prop("lid.angle")-90, 0, 0]) {
+      _top();
+      rotate([90, 0, 90]) {
+        _fins();
+        _pin();
+        _cuff();
+      }
     }
-  }
 }
 
 lid();
