@@ -6,6 +6,7 @@ global_props = [
   ["box.width", 120],
   ["box.front.height", 60],
   ["box.back.height", 72],
+  ["panel.thickness", 2],
 
   // hinge
   ["hinge.radius", 4.33333],
@@ -15,10 +16,10 @@ global_props = [
   ["hinge.fin.end", "$hinge.length - $hinge.fin.start"],
   ["hinge.fin.count", 5],
   // hinge fin shape
-  ["hinge.fin.length", 40],
+  ["hinge.fin.length", "$lid.length - $panel.thickness"],
   ["hinge.fin.width", 2.31],
   ["hinge.fin.height", "$hinge.radius * 2"],
-  ["hinge.fin.taper.angle", 30],
+  ["hinge.fin.taper.angle", 40],
   ["hinge.fin.margin", 0.3],
   // hinge pin
   ["hinge.pin.radius", 2.88888],

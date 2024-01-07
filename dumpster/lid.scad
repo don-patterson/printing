@@ -57,25 +57,40 @@ module _cuff(
   }
 }
 
-translate([0, 45, 0]) {
-  _fins();
-  %_fins(mode="margin");
+module _top(
+  l=prop("lid.length"),
+  w=prop("box.width"),
+  h=prop("panel.thickness")
+) {
+  translate([0,0,prop("hinge.radius")])
+    cube([w, l, h]);
 }
 
-translate([0, 30, 0]) {
-  _pin();
-  %_pin(mode="margin");
+// translate([0, 45, 0]) {
+//   _fins();
+//   %_fins(mode="margin");
+// }
+// translate([0, 30, 0]) {
+//   _pin();
+//   %_pin(mode="margin");
+// }
+// translate([0, 15, 0]) {
+//   _cuff();
+// }
+// _fins();
+// _pin();
+// _cuff();
+
+
+module lid(angle=prop("lid.angle")) {
+  rotate([angle-90, 0, 0]) {
+    _top();
+    rotate([90, 0, 90]) {
+      _fins();
+      _pin();
+      _cuff();
+    }
+  }
 }
 
-translate([0, 15, 0]) {
-  _cuff();
-}
-
-
-module hinge() {
-  _fins();
-  _pin();
-  _cuff();
-}
-
-hinge();
+lid();
