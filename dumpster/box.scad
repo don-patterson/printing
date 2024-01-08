@@ -1,4 +1,7 @@
 use <props.scad>
+
+$fn = $preview ? 30 : 128;
+
 module _front(
   width=prop("box.width"),
   height=prop("box.front.height"),

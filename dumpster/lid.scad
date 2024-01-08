@@ -82,16 +82,28 @@ module _top(
 // _cuff();
 
 
-module lid(angle=0) {
-  translate([0, 0, prop("box.back.height")-prop("hinge.radius")])
-    rotate([angle+prop("lid.angle")-90, 0, 0]) {
-      _top();
-      rotate([90, 0, 90]) {
-        _fins();
-        _pin();
-        _cuff();
+module lid(angle=0, mode="normal") {
+  translate([0, 0, prop("box.back.height")-prop("hinge.radius")]) {
+    if (mode == "normal")
+      rotate([angle+prop("lid.angle")-90, 0, 0]) {
+        _top();
+        rotate([90, 0, 90]) {
+          _fins();
+          _pin();
+          _cuff();
+        }
       }
-    }
+    else if (mode == "cutout")
+      rotate([prop("lid.angle")-90,0,0])
+        rotate([0,90,0])
+          rotate_extrude(angle=180)
+            rotate([0,0,90])
+              square([
+                prop("box.width"),
+                prop("hinge.radius") + prop("panel.thickness")
+              ]);
+  }
 }
 
 lid();
+#lid(mode="cutout");

@@ -1,17 +1,19 @@
 use <../util.scad>
 
+$fn = $preview ? 30 : 128;
+
 global_props = [
   // basic exterior dimensions
   ["box.depth", 60],
   ["box.width", 120],
   ["box.front.height", 60],
-  ["box.back.height", 72],
+  ["box.back.height", 76],
   ["panel.thickness", 2],
 
   // lid/hinge
   ["lid.angle", "atan ($box.depth / ($box.back.height - $box.front.height))"],
   ["lid.length", "norm $box.depth ($box.back.height - $box.front.height)"],
-  ["hinge.radius", 4.33333],
+  ["hinge.radius", 6],
   ["hinge.length", 120],
   // hinge fin position
   ["hinge.fin.start", 5],
