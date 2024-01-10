@@ -1,3 +1,6 @@
+// Here are a bunch of utilities, mostly to support the global prop function.
+
+
 // numbers and logic
 function int(s, total=0, i=0) = (i == len(s))
   ? total
@@ -152,7 +155,13 @@ function _test_strings() =
 echo(_test_strings());
 
 
-// global prop function
+// Global prop function.
+// The idea here is to define a function like:
+//   function prop(key) = getprop(key, global_props);
+// and then use that to share variables throughout your multi-file design.
+// A bunch of expressions are available within the props dictionary, like
+// references to other props, and various computations. Whitespace
+// is strict in the expressions.
 props_example = [
   ["key1", 1],
   ["key2", 2],
@@ -241,7 +250,8 @@ function _test_props() =
 
 echo(_test_props());
 
-// bezier
+// geometry
+
 function bezier(points, count=30) =
   // Generate points along the bezier curve for a given list of control points
   len(points) == 1
@@ -251,14 +261,26 @@ function bezier(points, count=30) =
     [for (i=[0:count-1]) head[i] + (tail[i] - head[i]) * i / (count-1)];
 
 /*// Demo
-
 p0 = [0, 0];
 p1 = [6, 1];
 p2 = [5, 5];
 p3 = [2, 4];
-
 for (i = bezier([p0, p1], count=10)) translate(i) circle(r=.1, $fn=32);
 for (i = bezier([p1, p2], count=10)) translate(i) circle(r=.1, $fn=32);
 for (i = bezier([p2, p3], count=10)) translate(i) circle(r=.1, $fn=32);
 for (i = bezier([p0, p1, p2, p3])) color("green") translate(i) circle(r=.1, $fn=32);
 //*/
+
+module r_extrude(x=undef, y=undef) {
+  // rotation extrude, without the weird z axis flip up thing
+  if (x == undef)
+    rotate([-90,0,180])
+      rotate_extrude(angle=y)
+        rotate([0,0,180])
+          children();
+  else
+    rotate([-90,0,-90])
+      rotate_extrude(angle=x)
+        rotate([0,0,90])
+          children();
+}

@@ -11,9 +11,10 @@ global_props = [
   ["panel.thickness", 2],
 
   // lid/hinge
-  ["lid.angle", "atan ($box.depth / ($box.back.height - $box.front.height))"],
+  ["lid.angle", "atan (($box.back.height - $box.front.height) / $box.depth)"],
   ["lid.length", "norm $box.depth ($box.back.height - $box.front.height)"],
-  ["hinge.radius", 6],
+  ["lid.cutout.radius", "$hinge.radius + $panel.thickness"],
+  ["hinge.radius", 4],
   ["hinge.length", 120],
   // hinge fin position
   ["hinge.fin.start", 5],
@@ -26,7 +27,7 @@ global_props = [
   ["hinge.fin.taper.angle", 40],
   ["hinge.fin.margin", 0.3],
   // hinge pin
-  ["hinge.pin.radius", 2.88888],
+  ["hinge.pin.radius", 2],
   ["hinge.pin.margin", 0.2],
   ["hinge.pin.start", 2],
   ["hinge.pin.end", "$hinge.length - $hinge.pin.start"],
