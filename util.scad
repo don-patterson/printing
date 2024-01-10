@@ -1,3 +1,6 @@
+// Here are a bunch of utilities, mostly to support the global prop function.
+
+
 // numbers and logic
 function int(s, total=0, i=0) = (i == len(s))
   ? total
@@ -152,7 +155,13 @@ function _test_strings() =
 echo(_test_strings());
 
 
-// global prop function
+// Global prop function.
+// The idea here is to define a function like:
+//   function prop(key) = getprop(key, global_props);
+// and then use that to share variables throughout your multi-file design.
+// A bunch of expressions are available within the props dictionary, like
+// references to other props, and various computations. Whitespace
+// is strict in the expressions.
 props_example = [
   ["key1", 1],
   ["key2", 2],

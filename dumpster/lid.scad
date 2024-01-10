@@ -66,44 +66,39 @@ module _top(
     cube([w, l, h]);
 }
 
-// translate([0, 45, 0]) {
-//   _fins();
-//   %_fins(mode="margin");
-// }
-// translate([0, 30, 0]) {
-//   _pin();
-//   %_pin(mode="margin");
-// }
-// translate([0, 15, 0]) {
-//   _cuff();
-// }
-// _fins();
-// _pin();
-// _cuff();
-
-
-module lid(angle=0, mode="normal") {
-  translate([0, 0, prop("box.back.height")-prop("hinge.radius")]) {
-    if (mode == "normal")
-      rotate([angle+prop("lid.angle")-90, 0, 0]) {
-        _top();
-        rotate([90, 0, 90]) {
-          _fins();
-          _pin();
-          _cuff();
-        }
-      }
-    else if (mode == "cutout")
-      rotate([prop("lid.angle")-90,0,0])
-        rotate([0,90,0])
-          rotate_extrude(angle=180)
-            rotate([0,0,90])
-              square([
-                prop("box.width"),
-                prop("hinge.radius") + prop("panel.thickness")
-              ]);
+module _assembly(mode="normal") {
+  _top();
+  rotate([90,0,90]) {
+    _fins(mode=mode);
+    _pin(mode=mode);
+    _cuff();
   }
 }
 
+module lid(angle=0, mode="normal") {
+  // position should be such that the hinge pin in centered on the outside
+  // edge of the back wall, and so the lid is exactly touching, when the
+  // hinge is rotated "lid.angle" down from horizontal. I think I did
+  // the math right
+  let (t=prop("panel.thickness"), a=prop("lid.angle"), r=prop("hinge.radius"), h=prop("box.back.height"))
+  translate([
+    0, // already starting at x=0
+    -t, // move to the outside of the back wall
+    h + t*tan(a) - r/cos(a) // worked it out 4 times before I got the same answer twice
+  ])
+    rotate([angle-a, 0, 0])
+      _assembly();
+  // TODO: finish swing/cutout mode
+  //   else if (mode == "cutout")
+  //     rotate([prop("lid.angle")-90,0,0])
+  //       rotate([0,90,0])
+  //         rotate_extrude(angle=180)
+  //           rotate([0,0,90])
+  //             square([
+  //               prop("box.width"),
+  //               prop("hinge.radius") + prop("panel.thickness")
+  //             ]);
+  //
+}
+
 lid();
-#lid(mode="cutout");

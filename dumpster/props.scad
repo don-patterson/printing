@@ -11,7 +11,7 @@ global_props = [
   ["panel.thickness", 2],
 
   // lid/hinge
-  ["lid.angle", "atan ($box.depth / ($box.back.height - $box.front.height))"],
+  ["lid.angle", "atan (($box.back.height - $box.front.height) / $box.depth)"],
   ["lid.length", "norm $box.depth ($box.back.height - $box.front.height)"],
   ["hinge.radius", 6],
   ["hinge.length", 120],
