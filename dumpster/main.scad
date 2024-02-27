@@ -5,5 +5,6 @@ $fn = $preview ? 30 : 128;
 
 difference() {
   box();
-  lid(mode="cutout"); // TODO: lid cutout misses a bit
+  lid(mode="cutout");
 }
+lid(angle=180);

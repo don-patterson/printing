@@ -85,6 +85,7 @@ module _assembly(
   // note that right now cutout is mostly about the hinge, not the fins
   cutout_radius=prop("lid.cutout.radius"),
   cutout_width=prop("hinge.length"),
+  wall_thickness=prop("panel.thickness"),
   mode="normal"
 ) {
   _top();
@@ -94,9 +95,14 @@ module _assembly(
     _cuff();
   }
   if (mode != "normal")
-    rotate([90,0,0])
+    rotate([90,0,0]) {
       r_extrude(x=120)
         square([cutout_width, cutout_radius]);
+      // clear the gap between the top and the hinge cuff
+      r_extrude(x=-45)
+        translate([wall_thickness, 0, 0])
+          square([cutout_width - 2*wall_thickness, cutout_radius]);
+    }
 }
 
 module lid(angle=0, mode="normal") {
@@ -116,4 +122,4 @@ module lid(angle=0, mode="normal") {
       _assembly(mode=mode);
 }
 
-lid();
+lid(mode="cutout");
