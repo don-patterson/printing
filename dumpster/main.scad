@@ -1,5 +1,6 @@
 use <lid.scad>
 use <box.scad>
+use <arms.scad>
 
 $fn = $preview ? 30 : 128;
 
@@ -8,3 +9,4 @@ difference() {
   lid(mode="cutout");
 }
 lid(angle=180);
+arms();
