@@ -8,32 +8,44 @@ $fn = $preview ? 30 : 128;
 // use mode "margin" to subtract space around the shape so that it can move
 // use mode "cutout" to subtract interior space for a shape so that it can be inserted into a solid
 
+module _fin(
+  l=prop("hinge.fin.length"),
+  w=prop("hinge.fin.width"),
+  h=prop("hinge.fin.height"),
+  a=prop("hinge.fin.taper.angle"),
+  m=prop("hinge.fin.margin"),
+  margin_l=false,
+  margin_r=false,
+) {
+  // single sided margins fin arm
+  translate([0, 0, -w/2 - (margin_r ? m : 0)])
+    linear_extrude(w + (margin_l ? m : 0) + (margin_r ? m : 0))
+      translate([0, -h/2, 0])
+        polygon([[0,0], [0, h], [l, h], [l - (h / tan(a)), 0]]);
+
+  // always double sided margin for the cicular part
+  translate([0, 0, -w/2 - (margin_l||margin_r ? m : 0)])
+    linear_extrude(w + (margin_l||margin_r ? 2*m : 0))
+      circle(d=h + (margin_l||margin_r ? 2*m : 0));
+}
+
 module _fins(
   // mode: normal or margin
   start=prop("hinge.fin.start"),
   end=prop("hinge.fin.end"),
   count=prop("hinge.fin.count"),
-  l=prop("hinge.fin.length"),
   w=prop("hinge.fin.width"),
-  h=prop("hinge.fin.height"),
-  a=prop("hinge.fin.taper.angle"),
   margin=prop("hinge.fin.margin"),
   mode="normal",
 ) {
-  margin = mode == "normal" ? 0 : margin;
-  start = start - margin;
-  end = end + margin;
-  w = w + 2*margin;
-  d = h + 2*margin;
-  // it's kinda complicated to get the length/height margin right with the angled edge
-  // and also maybe not that useful, so I'm leaving it out for now.
+  start = start + w/2;
+  end = end - w/2;
   for (i=[0:count - 1])
-    translate([0, 0, start + i * (end - w - start) / (count - 1)])
-      linear_extrude(w) {
-        translate([0, -h/2, 0])
-          polygon([[0,0], [0, h], [l, h], [l - (h / tan(a)), 0]]);
-        circle(d=d);
-      }
+    translate([0, 0, start + i * (end - start) / (count - 1)])
+      _fin(
+        margin_l=(mode == "margin" && i < count-1),
+        margin_r=(mode == "margin" && i > 0)
+      );
 }
 
 module _pin(
@@ -121,5 +133,3 @@ module lid(angle=0, mode="normal") {
     rotate([angle-a, 0, 0])
       _assembly(mode=mode);
 }
-
-lid(mode="cutout");

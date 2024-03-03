@@ -8,5 +8,5 @@ difference() {
   box();
   lid(mode="cutout");
 }
-lid(angle=180);
+lid(angle=180); // 180*$t for animation
 arms();
