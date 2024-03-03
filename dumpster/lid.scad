@@ -14,19 +14,28 @@ module _fin(
   h=prop("hinge.fin.height"),
   a=prop("hinge.fin.taper.angle"),
   m=prop("hinge.fin.margin"),
-  margin_l=false,
-  margin_r=false,
+  mode="normal", // "normal" or "margin"
+  bump=undef, // "left", "right", or undef
 ) {
-  // single sided margins fin arm
-  translate([0, 0, -w/2 - (margin_r ? m : 0)])
-    linear_extrude(w + (margin_l ? m : 0) + (margin_r ? m : 0))
+  // fin arm (no margins necessary)
+  translate([0, 0, -w/2])
+    linear_extrude(w)
       translate([0, -h/2, 0])
         polygon([[0,0], [0, h], [l, h], [l - (h / tan(a)), 0]]);
 
-  // always double sided margin for the cicular part
-  translate([0, 0, -w/2 - (margin_l||margin_r ? m : 0)])
-    linear_extrude(w + (margin_l||margin_r ? 2*m : 0))
-      circle(d=h + (margin_l||margin_r ? 2*m : 0));
+  // circular part (with optional margin)
+  translate([0, 0, -w/2 - (mode == "margin" ? m : 0)])
+    linear_extrude(w + (mode == "margin" ? 2*m : 0))
+      circle(d=h + (mode == "margin" ? 2*m : 0));
+
+  // latch bump
+  if (bump)
+    translate([l - h/tan(a) - w, 0, 0])
+      intersection() {
+        sphere(r=w + (mode == "margin" ? m : 0));
+        translate([-w, -w, bump == "left" ? 0 : -2*w])
+          cube(2*w);
+      }
 }
 
 module _fins(
@@ -40,12 +49,19 @@ module _fins(
 ) {
   start = start + w/2;
   end = end - w/2;
-  for (i=[0:count - 1])
+
+  // first fin
+  translate([0, 0, start])
+    _fin(mode=mode, bump="right");
+
+  // interior fins
+  for (i=[1:count - 2])
     translate([0, 0, start + i * (end - start) / (count - 1)])
-      _fin(
-        margin_l=(mode == "margin" && i < count-1),
-        margin_r=(mode == "margin" && i > 0)
-      );
+      _fin(mode=mode);
+
+  // last fin
+  translate([0, 0, end])
+    _fin(mode=mode, bump="left");
 }
 
 module _pin(

@@ -17,7 +17,7 @@ global_props = [
   ["hinge.radius", 4],
   ["hinge.length", "$box.width"],
   // hinge fin position
-  ["hinge.fin.start", "$panel.thickness + 0.1"],
+  ["hinge.fin.start", "$panel.thickness + 0.2"],
   ["hinge.fin.end", "$hinge.length - $hinge.fin.start"],
   ["hinge.fin.count", 5],
   // hinge fin shape
