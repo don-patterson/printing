@@ -4,7 +4,7 @@ $fs = $preview ? 1 : .1;
 depth = 101;
 height = 101;
 width = 70;
-wall = .86;
+wall = 1;
 
 difference() {
   translate([0,0,-0.501*wall])
