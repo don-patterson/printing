@@ -15,7 +15,8 @@ module ngon(
   on="origin", // placement: origin | y+
   margin=0,       // global margin
   margin_r=undef, // override r margin
-  margin_z=undef  // override depth margin
+  margin_z=undef, // override depth margin
+  chamfer=0,
 ) {
   margin_r = margin_r == undef ? margin : margin_r;
   margin_z = margin_z == undef ? margin : margin_z;
@@ -23,12 +24,21 @@ module ngon(
   ty = on == "y+" ? r*cos(180/n) : 0;
   translate([0, ty, 0])
     rotate([0, 0, 90 - (n%2 == 0 ? 180/n : 0)])
-      cylinder(h=z + 2*margin_z, r=r + margin_r, $fn=n, center=true);
+      if (chamfer > 0) {
+        // TODO chamfer maybe depends on the margin in this case too?
+        translate([0, 0, (z + 2*margin_z - chamfer)/2])
+          cylinder(h=chamfer, r1=r + margin_r, r2=r + margin_r - chamfer, $fn=n, center=true);
+        cylinder(h=z + 2*margin_z - 2*chamfer, r=r + margin_r, $fn=n, center=true);
+        translate([0, 0, -(z + 2*margin_z - chamfer)/2])
+          cylinder(h=chamfer, r2=r + margin_r, r1=r + margin_r - chamfer, $fn=n, center=true);
+      } else {
+        cylinder(h=z + 2*margin_z, r=r + margin_r, $fn=n, center=true);
+      }
 }
 
 //difference() {
-//  %ngon(n=5, side=8, z=2, on="y+", margin=2, margin_z=.4);
-//   ngon(n=5, side=8, z=2, on="y+");
+//  %ngon(n=5, side=8, z=4, chamfer=1, on="y+", margin=1);
+//  ngon(n=5, side=8, z=4, chamfer=1, on="y+");
 //}
 
 module box(
