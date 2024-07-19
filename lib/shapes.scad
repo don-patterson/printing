@@ -21,8 +21,10 @@ module ngon(
   margin_r = margin_r == undef ? margin : margin_r;
   margin_z = margin_z == undef ? margin : margin_z;
   r = r == undef ? side/(2*sin(180/n)) : r;
-  ty = on == "y+" ? r*cos(180/n) : 0;
-  translate([0, ty, 0])
+  t = on == "y+" ? [0, r*cos(180/n),   0]
+    : on == "z+" ? [0,            0, z/2]
+    :              [0,            0,   0];
+  translate(t)
     rotate([0, 0, 90 - (n%2 == 0 ? 180/n : 0)])
       if (chamfer > 0) {
         // TODO chamfer maybe depends on the margin in this case too?
