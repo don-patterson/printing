@@ -10,7 +10,8 @@ $fs = $preview ? 1 : .1;
 
 module ngon(
   n=undef,
-  r=undef, side=undef, // must specify one of r or side length
+  r=undef,  side=undef,  // must specify one of r or side length
+  rT=undef, sideT=undef, // optionally can specify the top r or side length
   z=undef, // thickness (in z direction)
   on="origin", // placement: origin | y+
   margin=0,       // global margin
@@ -21,12 +22,14 @@ module ngon(
   margin_r = margin_r == undef ? margin : margin_r;
   margin_z = margin_z == undef ? margin : margin_z;
   r = r == undef ? side/(2*sin(180/n)) : r;
+  rT = rT == undef ? (sideT == undef ? r : sideT/2*sin(180/n)) : rT;
   t = on == "y+" ? [0, r*cos(180/n),   0]
     : on == "z+" ? [0,            0, z/2]
     :              [0,            0,   0];
   translate(t)
     rotate([0, 0, 90 - (n%2 == 0 ? 180/n : 0)])
       if (chamfer > 0) {
+        assert (rT == r, "chamfer and r!=rT not supported");
         // TODO chamfer maybe depends on the margin in this case too?
         translate([0, 0, (z + 2*margin_z - chamfer)/2])
           cylinder(h=chamfer, r1=r + margin_r, r2=r + margin_r - chamfer, $fn=n, center=true);
@@ -34,14 +37,13 @@ module ngon(
         translate([0, 0, -(z + 2*margin_z - chamfer)/2])
           cylinder(h=chamfer, r2=r + margin_r, r1=r + margin_r - chamfer, $fn=n, center=true);
       } else {
-        cylinder(h=z + 2*margin_z, r=r + margin_r, $fn=n, center=true);
+        cylinder(h=z + 2*margin_z, r1=r + margin_r, r2=rT + margin_r, $fn=n, center=true);
       }
 }
 
-//difference() {
-//  %ngon(n=5, side=8, z=4, chamfer=1, on="y+", margin=1);
-//  ngon(n=5, side=8, z=4, chamfer=1, on="y+");
-//}
+difference() {
+  ngon(n=5, r=8, rT=0, z=4, on="y+");
+}
 
 module box(
   x=undef, y=undef, z=undef,  // 3 ways to specify size
