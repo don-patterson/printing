@@ -33,7 +33,7 @@ module ngon(
         // chamfer should be measured in distance perpendicular to the side, which is at
         // angle `a` from `r` (i.e. the same angle we have to rotate if n is odd.
         cz = chamfer;
-        cr = 1/cos(a);
+        cr = chamfer/cos(a);
         // TODO chamfer should depend on the margin, but it's pretty tedious
         // for a small gain
         translate([0, 0, (z + 2*margin_z - cz)/2])
@@ -46,10 +46,13 @@ module ngon(
       }
 }
 
-difference() {
-  %ngon(n=5, r=8, z=4, chamfer=1, on="y+", margin=1);
-  ngon(n=5, r=8, z=4, chamfer=1, on="y+");
-}
+
+ngon(4, side=21-2*0.8, z=8, on="z+", chamfer=1);
+
+//difference() {
+//  %ngon(n=5, r=8, z=4, chamfer=1, on="y+", margin=1);
+//  ngon(n=5, r=8, z=4, chamfer=1, on="y+");
+//}
 
 module box(
   x=undef, y=undef, z=undef,  // 3 ways to specify size

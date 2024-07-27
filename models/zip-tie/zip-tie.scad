@@ -38,12 +38,19 @@ module rung(gap=rung_gap, span=rung_span, tab=false) {
 
 for (i=[0:20])
   translate([(rung_gap+wall)/2 + (rung_gap+wall)*i, 0, 0])
-    rung(tab=(i<2));
+    rung(tab=false); // tab=(i<2)
 
 // head
-difference() {
-  translate([0, 0, 2*t])
-    box(10, rung_span+4*wall, 4*t, on="x-");
-  translate([0, 0, t+(t+tol)/2])
-    box(10, rung_span+2*wall+tol, t+tol, on="x-");
-}
+//difference() {
+//  translate([0, 0, 2*t])
+//    box(10, rung_span+4*wall, 4*t, on="x-");
+//  translate([0, 0, t+(t+tol)/2])
+//    box(10, rung_span+2*wall+tol, t+tol, on="x-");
+//}
+
+// catch
+translate([0,0,t/2])
+  box(wall, rung_span+4*wall+tol, t, on="x-");
+translate([-3*wall,0,t/2])
+ box(wall, rung_span+4*wall+tol, t, on="x-");
+
