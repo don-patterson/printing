@@ -16,17 +16,20 @@ module ngon(
   z=undef, // thickness (in z direction)
   on="origin", // placement: origin | y+
   margin=0,       // global margin
-  margin_r=undef, // override r margin
-  margin_z=undef, // override depth margin
+  margin_r=undef, margin_side=undef, // override r margin
+  margin_z=undef, // override z margin
   chamfer=0,
 ) {
-  margin_r = margin_r == undef ? margin : margin_r;
-  margin_z = margin_z == undef ? margin : margin_z;
   a = 180/n;
+  margin_side = margin_side == undef ? margin : margin_side;
+  margin_r = margin_r == undef ? margin_side/cos(a) : margin_r;
+  margin_z = margin_z == undef ? margin : margin_z;
   r = r == undef ? side/(2*sin(a)) : r;
-  t = on == "y+" ? [0, r*cos(a),   0]
-    : on == "z+" ? [0,        0, z/2]
-    :              [0,        0,   0];
+  t = on == "y+" ? [0,  r*cos(a),    0]
+    : on == "y-" ? [0, -r*cos(a),    0]
+    : on == "z+" ? [0,         0,  z/2]
+    : on == "z-" ? [0,         0, -z/2]
+    :              [0,         0,    0];
   translate(t)
     rotate([0, 0, 90 - (n%2 == 0 ? a : 0)])
       if (chamfer > 0) {

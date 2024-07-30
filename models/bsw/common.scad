@@ -35,3 +35,25 @@ module wall_unit(
            chamfer=wall_chamfer);
   }
 }
+
+module plug(
+  n=4,
+  width=prop("width"),
+  depth=prop("depth"),
+  thick_wall=prop("wall_thickness"),
+  thin_wall=prop("wall_thickness") - prop("wall_cutout"),
+  wall_chamfer=prop("wall_chamfer"),
+  margin=0.25,
+) {
+  // main block
+  translate([0,0,-margin])
+    %box(x=width-2*thick_wall-2*margin, y=width-2*thick_wall-2*margin, z=10, on="z+");
+    ngon(n, side=width-2*thick_wall, z=depth+2*margin, on="z+", margin=-margin);
+
+  // front plate
+//  %ngon(n, side=width-2*thin_wall, z=thin_wall, on="z-", chamfer=thin_wall/4);
+}
+
+//translate([0, 0, 15])
+//  wall_unit();
+plug();

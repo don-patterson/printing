@@ -13,6 +13,11 @@ function substr(s, start=0, limit=undef) =
   ? ""
   : strcat([for (i=[start:end]) s[i]]);
 
+function contains_substr(s, sub) =
+  // return true if substr is found anywhere in s
+  let (list = [for (i=[0:1:len(s)-len(sub)]) substr(s, start=i, limit=i+len(sub))])
+  contains(list, sub);
+
 function replace_substr(s, repl, start=0, limit=undef) =
   // remove a substring and replace it with another string
   let (end = limit == undef ? len(s)-1 : limit-1)
@@ -54,6 +59,14 @@ function _test_strings() =
   assert (substr("abcde", limit=3) == "abc")
   assert (substr("abcde", start=2, limit=4) == "cd")
   assert (substr("abcde", start=99) == "")
+  assert (contains_substr("abcde", "a") == true)
+  assert (contains_substr("abcde", "ab") == true)
+  assert (contains_substr("abcde", "abcde") == true)
+  assert (contains_substr("abcde", "de") == true)
+  assert (contains_substr("abcde", "Q") == false)
+  assert (contains_substr("abcde", "abcdefghijklmnop") == false)
+  assert (contains_substr("abcde", "e*") == false)
+  assert (contains_substr("abcde", "") == true)
   assert (replace_substr("abcde", "CD", start=2, limit=4) == "abCDe")
   assert (replace_substr("abcde", "CD", start=2, limit=5) == "abCD")
   assert (replace_substr("abcde", "CD", start=2, limit=999) == "abCD")
