@@ -50,7 +50,7 @@ module ngon(
 }
 
 
-ngon(4, side=21-2*0.8, z=8, on="z+", chamfer=1);
+//ngon(4, side=21-2*0.8, z=8, on="z+", chamfer=1);
 
 //difference() {
 //  %ngon(n=5, r=8, z=4, chamfer=1, on="y+", margin=1);
@@ -88,9 +88,9 @@ module box(
       // chamfer angles all at 45, you need take the smallest chamfer out of
       // the big shape (box + margins) that maintains the right margin
       // distance in each direction.
-      cyz = 2*min(m.y, m.z) + chamfer;
-      cxz = 2*min(m.x, m.z) + chamfer;
-      cxy = 2*min(m.x, m.y) + chamfer;
+      cyz = 2*(min(m.y, m.z) + chamfer);
+      cxz = 2*(min(m.x, m.z) + chamfer);
+      cxy = 2*(min(m.x, m.y) + chamfer);
       intersection() {
         cube(s + 2*m, center=true);
         rotate([45,0,0])
@@ -123,3 +123,6 @@ module box(
 //  // see through to the chamfer on different margins
 //  color("red") box(100, on="z+");
 //}
+
+box(1, chamfer=.1, on="z+");
+%box(x=10, y=10, z=.1, on="z+");
