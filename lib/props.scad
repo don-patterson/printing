@@ -26,6 +26,10 @@ props_example = [
   ["p1", "$key3 * ($key2 + $key1)"],
   ["p2", "(1 + 2) * (2 ^ 3)"],
   ["p3", "((1 + $e5) + 1) + (cos $key4)"],
+  ["zero", 0],
+  ["false", false],
+  ["undef", undef],
+  ["empty-array", []],
 ];
 
 function eval_literal(args) =
@@ -76,8 +80,10 @@ function eval_raw(expression, props) =
 
 function getprop(key, props) =
   let (prop = props[search([key], props)[0]][1])
-  assert (prop, str("Missing key in properties: ", key))
-  eval_raw(prop, props);
+  assert (prop != undef, str("Missing key in properties: ", key))
+  let (result = eval_raw(prop, props))
+  assert (result != undef, str("Invalid expression in properties: ", prop))
+  result;
 
 function _test_props() =
   assert (getprop("key3", props_example) == 3)
@@ -92,6 +98,9 @@ function _test_props() =
   assert (getprop("p2", props_example) == 24)
   assert (getprop("p3", props_example) == 3.5)
   assert (getprop("s", props_example) == "hello")
+  assert (getprop("zero", props_example) == 0)
+  assert (getprop("false", props_example) == false)
+  assert (getprop("empty-array", props_example) == [])
   "test props success";
 
 echo(_test_props());
