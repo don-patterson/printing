@@ -10,11 +10,21 @@ $fs = $preview ? 1 : .1;
 // `difference` to carve out space for shapes to fit, with adjustable
 // tolerance.
 
-module ngon(
+// given on="x+,y+" or whatever, figure out the translation vector
+function _t(on, x=0, y=0, z=0) = 
+  let(t = split(on, ","))
+  (contains(t, "x+") ? [ x, 0, 0] : [0, 0, 0]) +
+  (contains(t, "x-") ? [-x, 0, 0] : [0, 0, 0]) +
+  (contains(t, "y+") ? [0,  y, 0] : [0, 0, 0]) +
+  (contains(t, "y-") ? [0, -y, 0] : [0, 0, 0]) +
+  (contains(t, "z+") ? [0, 0,  z] : [0, 0, 0]) +
+  (contains(t, "z-") ? [0, 0, -z] : [0, 0, 0]);
+
+module prism(
   n=undef,
   r=undef, side=undef, // must specify one of r or side length
   z=undef, // thickness (in z direction)
-  on="origin", // placement: origin | y+
+  on="origin", // placement: origin | x+ | z+,y- | etc
   margin=0,       // global margin
   margin_r=undef, margin_side=undef, // override r margin
   margin_z=undef, // override z margin
@@ -25,12 +35,7 @@ module ngon(
   margin_r = margin_r == undef ? margin_side/cos(a) : margin_r;
   margin_z = margin_z == undef ? margin : margin_z;
   r = r == undef ? side/(2*sin(a)) : r;
-  t = on == "y+" ? [0,  r*cos(a),    0]
-    : on == "y-" ? [0, -r*cos(a),    0]
-    : on == "z+" ? [0,         0,  z/2]
-    : on == "z-" ? [0,         0, -z/2]
-    :              [0,         0,    0];
-  translate(t)
+  translate(_t(on, y=r*cos(a), z=z/2))
     rotate([0, 0, 90 - (n%2 == 0 ? a : 0)])
       if (chamfer > 0) {
         // chamfer should be measured in distance perpendicular to the side, which is at
@@ -50,17 +55,16 @@ module ngon(
 }
 
 
-//ngon(4, side=21-2*0.8, z=8, on="z+", chamfer=1);
 
 //difference() {
-//  %ngon(n=5, r=8, z=4, chamfer=1, on="y+", margin=1);
-//  ngon(n=5, r=8, z=4, chamfer=1, on="y+");
+//  %prism(n=5, r=8, z=4, chamfer=1, on="y+,z-", margin=1);
+//  prism(n=5, r=8, z=4, chamfer=1, on="y+,z-");
 //}
 
 module box(
   x=undef, y=undef, z=undef,  // 3 ways to specify size
-  on="origin",    // placement: origin | x+ | y+ | z+
-  margin=0,  // global margin
+  on="origin", // placement: origin | x+ | z+,y- | etc
+  margin=0, // global margin
   margin_x=undef,  // override margins
   margin_y=undef,
   margin_z=undef,
@@ -75,13 +79,7 @@ module box(
     margin_z == undef ? margin : margin_z
   ];
 
-  translate(on == "x+" ? [ s.x/2,      0,      0]
-          : on == "x-" ? [-s.x/2,      0,      0]
-          : on == "y+" ? [     0,  s.y/2,      0]
-          : on == "y-" ? [     0, -s.y/2,      0]
-          : on == "z+" ? [     0,      0,  s.z/2]
-          : on == "z-" ? [     0,      0, -s.z/2]
-          :              [     0,      0,      0])
+  translate(_t(on, x=s.x/2, y=s.y/2, z=s.z/2))
     if (chamfer > 0) {
       // This looks pretty wild, but I just want to maintain a minimum margin
       // in each of the specified directions from the chamfer, so to keep the
@@ -124,5 +122,5 @@ module box(
 //  color("red") box(100, on="z+");
 //}
 
-box(1, chamfer=.1, on="z+");
-%box(x=10, y=10, z=.1, on="z+");
+//box(1, chamfer=.1, on="z+,x-");
+//%box(x=10, y=10, z=.1, on="z+,x-");

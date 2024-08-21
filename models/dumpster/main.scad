@@ -1,12 +1,8 @@
 use <lid.scad>
-use <box.scad>
+use <bin.scad>
 use <arms.scad>
+$fa = $preview ? 1 : .1;
+$fs = $preview ? 1 : .1;
 
-$fn = $preview ? 30 : 128;
-
-difference() {
-  box();
-  lid(mode="cutout");
-}
-lid(angle=180); // 180*$t for animation
+bin();
 arms();

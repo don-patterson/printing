@@ -1,31 +1,32 @@
-use <../../lib/util.scad>
-
-$fn = $preview ? 30 : 128;
+use <../../lib/props.scad>
 
 global_props = [
   // basic exterior dimensions
-  ["box.depth", 60],
-  ["box.width", 120],
-  ["box.front.height", 60],
-  ["box.back.height", 76],
+  ["bin.depth", 60],
+  ["bin.width", 120],
+  ["bin.front.height", 60],
+  ["bin.back.height", 76],
   ["panel.thickness", 2],
 
   // lid/hinge
-  ["lid.angle", "atan (($box.back.height - $box.front.height) / $box.depth)"],
-  ["lid.length", "norm $box.depth ($box.back.height - $box.front.height)"],
+  ["lid.angle", "atan (($bin.back.height - $bin.front.height) / $bin.depth)"],
+  ["lid.length", "norm $bin.depth ($bin.back.height - $bin.front.height)"],
   ["lid.cutout.radius", "$hinge.radius + $panel.thickness"],
   ["hinge.radius", 4],
-  ["hinge.length", "$box.width"],
+  ["hinge.length", "$bin.width"],
+
   // hinge fin position
   ["hinge.fin.start", "$panel.thickness + 0.2"],
   ["hinge.fin.end", "$hinge.length - $hinge.fin.start"],
   ["hinge.fin.count", 5],
+
   // hinge fin shape
   ["hinge.fin.length", "$lid.length - $panel.thickness"],
   ["hinge.fin.width", 2.31],
   ["hinge.fin.height", "$hinge.radius * 2"],
   ["hinge.fin.taper.angle", 40],
   ["hinge.fin.margin", 0.2],
+
   // hinge pin
   ["hinge.pin.radius", 2],
   ["hinge.pin.margin", 0.2],
