@@ -10,6 +10,9 @@ $fs = $preview ? 1 : .1;
 // `difference` to carve out space for shapes to fit, with adjustable
 // tolerance.
 
+// accept an int or 3d vector and return 3d vector
+function _vec(arg) = is_num(arg) ? [arg, arg, arg] : arg;
+
 // given on="x+,y+" or whatever, figure out the translation vector
 function _t(on, x=0, y=0, z=0) = 
   let(t = split(on, ","))
@@ -124,3 +127,39 @@ module box(
 
 //box(1, chamfer=.1, on="z+,x-");
 //%box(x=10, y=10, z=.1, on="z+,x-");
+
+
+// Here's an idea I had to make chamfers easy, by defining the box by its
+// 6 panels and taking the hull to fill in the chamfers. It's simpler than
+// my original chamfer box, so I think I'll drop this in as a replacement.
+// It also allows different margins and chamfers for each dimension.
+eps=.001;
+module _chamfer_box(
+  x, y, z,          // dimensions
+  cx=0, cy=0, cz=0, // chamfers
+  mx=0, my=0, mz=0, // margins
+) {
+  t = [
+    mx + (x - eps)/2,
+    my + (y - eps)/2,
+    mz + (z - eps)/2
+  ];
+  s = [
+    x - cx + 2*mx,
+    y - cy + 2*my,
+    z - cz + 2*mz
+  ];
+  hull() {
+    // top and bottom
+    translate([0, 0,  t.z]) cube([s.x, s.y, eps], center=true);
+    translate([0, 0, -t.z]) cube([s.x, s.y, eps], center=true);
+    // left and right
+    translate([0,  t.y, 0]) cube([s.x, eps, s.z], center=true);
+    translate([0, -t.y, 0]) cube([s.x, eps, s.z], center=true);
+    // back and front
+    translate([ t.x, 0, 0]) cube([eps, s.y, s.z], center=true);
+    translate([-t.x, 0, 0]) cube([eps, s.y, s.z], center=true);
+  }
+}
+%_chamfer_box(x=10, y=20, z=8, cx=3, cy=1, cz=2, mx=1, my=2, mz=10);
+_chamfer_box(x=10, y=20, z=8, cx=3, cy=1, cz=2);
