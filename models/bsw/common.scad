@@ -10,7 +10,7 @@ prop_map = [
   ["socket.depth", 8],
   ["socket.wall.thick", 1.8],
   ["socket.wall.thin", 0.8],
-  ["socket.wall.ratio", 0.75], // higher=taller thick wall
+  ["socket.wall.ratio", 0.85], // higher=taller thick wall
   ["tolerance", 0.1],
 
   // computed values
@@ -25,36 +25,33 @@ prop_map = [
 
 function prop(key) = getprop(key, prop_map);
 
-// Single wall board piece, with n sides. Outside wall is size `width`.
-// Using n !=4 is experimental, but looks possible with triangles or
-// of course hexagons!
-// TODO/known issue: these values kinda depend on each other, so they're not
-// quite parameters to the function...
+
+include <BOSL2/std.scad>
+
 module socket(
-  n=4,
   width=prop("socket.width"),
   depth=prop("socket.depth"),
   thick_wall=prop("socket.wall.thick"),
   thin_wall=prop("socket.wall.thin"),
-  wall_ratio=prop("socket.wall.ratio"),
-  chamfer=prop("socket.wall.chamfer"),
-  margin=0,
+  thick_wall_ratio=prop("socket.wall.ratio"),
 ) {
-  render() difference() {
-    // full block
-    prism(n, side=width, z=depth, on="z+", margin=margin);
-
-    // hole for the thick walls
-    prism(n, side=width-2*thick_wall, z=big, margin=-margin);
-
-    // chamfer to the thin wall. Note: margin_z is ignored here
-    // for a tight fit in the "depth" direction
-    translate([0, 0, depth*wall_ratio - chamfer])
-      prism(n, side=width-2*thin_wall, z=big, on="z+", chamfer=chamfer,
-           margin_side=-margin);
-    }
+  cutout_chamfer = thick_wall - thin_wall;
+  cutout_depth = depth * (1-thick_wall_ratio) + cutout_chamfer;
+  diff()
+  rect_tube(h=depth, size=width, wall=thick_wall)
+    attach(TOP, TOP, inside=true, shiftout=0.01)
+      cuboid([width-2*thin_wall, width-2*thick_wall, cutout_depth],
+              chamfer=cutout_chamfer, edges=[BOT+LEFT, BOT+RIGHT]);
+  // could do conventional version where there are cutouts in every direction by subtracting:
+  //    cuboid([21-1.6, 21-1.6, 3], chamfer=1, edges=BOT);
+  // but I'm thinking just having the cutouts on the sides would make attachments
+  // fit better and handle more weight
 }
+socket();
 
+// TOOD: convert the rest to BOSL, replace this 1000 lines with 10
+
+/*
 module _plug_tabs() {
   depth=prop("plug.depth");
   width=prop("socket.width");
@@ -102,7 +99,6 @@ module _plug_tabs() {
 //  box(x=width, y=width, z=1.8, on="z-", chamfer=.4);
 }
 
-_plug_tabs();
 
 module _plug_block(
   width=prop("plug.width"),
@@ -126,96 +122,6 @@ module _plug_block(
       socket(margin=tolerance);
     }
 
-  // front plate
-//  box(x=plate_width, y=plate_width, z=thick_wall, on="z-", chamfer=thick_wall/4);
 }
 
-
-
-/*
-module plugv2(
-  width=prop("width"),
-  depth=prop("depth"),
-  thick_wall=prop("thick_wall"),
-  thin_wall=prop("thin_wall"),
-  tolerance=0.15,
-) {
-  plug_width = width - 2*(thick_wall + tolerance);
-
-  hole_depth = depth/4 + thick_wall - thin_wall;
-  hole_length = plug_width * 0.7;
-  hole_width = thin_wall;
-  hole_t = (hole_width*3 - plug_width)/2;
-
-  // holes to let the tabs flex inward
-  render()
-  difference() {
-    _plug_block(tolerance=tolerance);
-
-    // vertical gap
-    translate([0, hole_t, depth])
-      box(x=hole_length, y=hole_width, z=hole_depth, on="z-");
-    // horiontal gap
-    translate([0, hole_t-hole_width/2, depth-hole_depth])
-      box(x=hole_length, y=2*hole_width, z=hole_width, on="z-");
-
-    translate([0, -hole_t, depth])
-      box(x=hole_length, y=hole_width, z=hole_depth, on="z-");
-    translate([0, -hole_t+hole_width/2, depth-hole_depth])
-      box(x=hole_length, y=2*hole_width, z=hole_width, on="z-");
-
-    translate([hole_t, 0, depth])
-      box(x=hole_width, y=hole_length, z=hole_depth, on="z-");
-    translate([hole_t-hole_width/2, 0, depth-hole_depth])
-      box(y=hole_length, x=2*hole_width, z=hole_width, on="z-");
-
-    translate([-hole_t, 0, depth])
-      box(x=hole_width, y=hole_length, z=hole_depth, on="z-");
-    translate([-hole_t+hole_width/2, 0, depth-hole_depth])
-      box(y=hole_length, x=2*hole_width, z=hole_width, on="z-");
-  }
-}
-
-module plugv3(
-  width=prop("width"),
-  depth=prop("depth"),
-  thick_wall=prop("thick_wall"),
-  thin_wall=prop("thin_wall"),
-  tolerance=0.1,
-) {
-  plug_width = width - 2*(thick_wall + tolerance);
-
-  hole_depth = depth*3/4;
-  hole_length = plug_width * 0.7;
-  hole_width = thin_wall;
-  hole_t = (hole_width*3 - plug_width)/2;
-
-  // holes to let the tabs flex inward
-  render()
-  difference() {
-    _plug_block(tolerance=tolerance);
-
-    // vertical gap
-    translate([0, hole_t, depth])
-      box(x=hole_length, y=hole_width, z=hole_depth, on="z-");
-    // horiontal gap
-    translate([0, hole_t-hole_width/2, depth-hole_depth])
-      box(x=hole_length, y=2*hole_width, z=hole_width, on="z-");
-
-    translate([0, -hole_t, depth])
-      box(x=hole_length, y=hole_width, z=hole_depth, on="z-");
-    translate([0, -hole_t+hole_width/2, depth-hole_depth])
-      box(x=hole_length, y=2*hole_width, z=hole_width, on="z-");
-
-    translate([hole_t, 0, depth])
-      box(x=hole_width, y=hole_length, z=hole_depth, on="z-");
-    translate([hole_t-hole_width/2, 0, depth-hole_depth])
-      box(y=hole_length, x=2*hole_width, z=hole_width, on="z-");
-
-    translate([-hole_t, 0, depth])
-      box(x=hole_width, y=hole_length, z=hole_depth, on="z-");
-    translate([-hole_t+hole_width/2, 0, depth-hole_depth])
-      box(y=hole_length, x=2*hole_width, z=hole_width, on="z-");
-  }
-}
 */
