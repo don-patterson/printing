@@ -11,14 +11,15 @@ prop_map = [
   ["socket.wall.thick", 1.8],
   ["socket.wall.thin", 1.0],
   ["socket.chamfer.start", 1], // min 0.75 for current (arbitrary) bump size
-  ["margin", 0.05],
+  ["margin.s", 0.05],
+  ["margin.m", 0.1],
 
   // computed values
   ["socket.chamfer", "$socket.wall.thick - $socket.wall.thin"], // 45 degree chamfer
-  ["plug.width", "$socket.width - (2 * ($socket.wall.thick + $margin))"],
+  ["plug.width", "$socket.width - (2 * ($socket.wall.thick + $margin.s))"],
   ["plug.depth", "$socket.depth"],
   ["plug.tab.width", "$plug.width / 3"],
-  ["plug.plate.width", "$socket.width - (2 * $margin)"],
+  ["plug.plate.width", "$socket.width - (2 * $margin.m)"],
 ];
 
 function prop(key) = getprop(key, prop_map);
@@ -52,7 +53,10 @@ module plug(
   diff() // for the "attached" cutouts
   cuboid([width, width, depth], anchor=BOT) {
     // face plate
-    position(BOTTOM) cuboid([plate_width, plate_width, 0.8], anchor=TOP);
+    position(BOTTOM) cuboid([plate_width, plate_width, 2], anchor=TOP)
+      // cutout for a flat screwdriver to pop out the plug
+      attach(FRONT, FRONT, inside=true, shiftout=0.01, align=TOP)
+        cuboid([5, (plate_width-width)/2, 0.8]);
 
     // bumps to stick out and snap fit in the chamfered part of the wall
     position(TOP+LEFT) right(0.3) down(.25) ycyl(l=tab_width, r=0.8, anchor=TOP);
@@ -63,8 +67,17 @@ module plug(
       cuboid([0.8, 2*tab_width, 2.8]);
     attach(TOP, TOP, inside=true, shiftout=0.01, align=[LEFT,RIGHT], overlap=-2.1)
       cuboid([1.6, 2*tab_width, 0.8]);
+
+    children();
   }
 }
+
+module hsw_plug() {
+  plug()
+    attach(TOP, TOP, inside=true, shiftout=0.01)
+      regular_prism(6, d=13.4, h=30);
+}
+
 
 // example:
 cols=3; // [1:1:20]
@@ -76,4 +89,6 @@ for (i=[0:cols-1]) {
     right(i*width) back(j*width) socket();
   }
 }
-left(24) plug();
+left(24) up(2) plug();
+
+fwd(24) up(2) hsw_plug();
