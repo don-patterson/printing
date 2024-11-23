@@ -75,7 +75,7 @@ module plug(
 module hsw_plug() {
   plug()
     attach(TOP, TOP, inside=true, shiftout=0.01)
-      regular_prism(6, d=13.4, h=30);
+      regular_prism(6, id=13.4, h=30);
 }
 
 
