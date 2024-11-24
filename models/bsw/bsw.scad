@@ -1,6 +1,5 @@
-use <../../lib/props.scad>
-use <../../lib/shapes.scad>
-include <BOSL2/std.scad>
+use <prop-lib.scad>        // https://github.com/don-patterson/printing/blob/main/lib/prop-lib.scad
+include <BOSL2/std.scad>   // https://github.com/BelfrySCAD/BOSL2
 $fa = $preview ? .5 : .1;
 $fs = $preview ? .5 : .1;
 
@@ -55,8 +54,8 @@ module plug(
     // face plate
     position(BOTTOM) cuboid([plate_width, plate_width, 2], anchor=TOP)
       // cutout for a flat screwdriver to pop out the plug
-      attach(FRONT, FRONT, inside=true, shiftout=0.01, align=TOP)
-        cuboid([5, (plate_width-width)/2, 0.8]);
+      attach([LEFT,RIGHT,FRONT,BACK], TOP, inside=true, shiftout=0.01, align=TOP)
+        cuboid([6, 0.8, (plate_width-width)/2]);
 
     // bumps to stick out and snap fit in the chamfered part of the wall
     position(TOP+LEFT) right(0.3) down(.25) ycyl(l=tab_width, r=0.8, anchor=TOP);
@@ -78,6 +77,12 @@ module hsw_plug() {
       regular_prism(6, id=13.4, h=30);
 }
 
+module hollow_plug() {
+  plug()
+    attach(TOP, TOP, inside=true, shiftout=0.01)
+      cuboid([12,12,30]);
+}
+
 
 // example:
 cols=3; // [1:1:20]
@@ -89,6 +94,8 @@ for (i=[0:cols-1]) {
     right(i*width) back(j*width) socket();
   }
 }
-left(24) up(2) plug();
-
-fwd(24) up(2) hsw_plug();
+up(2) fwd(24) {
+  plug();
+  right(21) hsw_plug();
+  right(42) hollow_plug();
+}
