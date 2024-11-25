@@ -1,8 +1,5 @@
-use <../../lib/util.scad>
-
-// smoothing
-$fn = 256;
-$bn = 256;
+include <BOSL2/std.scad>
+include <BOSL2/beziers.scad>
 
 // main points that define this thing
 p0 = [0,0];
@@ -23,9 +20,9 @@ post_r = 6;
 overlap = 0.5;
 
 path = concat(
-  bezier([p0, p1], count=$bn),
-  bezier([p1, p1 + [6,0], p2 + [0, -8], p2], count=$bn),
-  bezier([p2, p2 + [0,2], p3 + [6, 0], p3], count=$bn)
+  bezier_curve([p0, p1]),
+  bezier_curve([p1, p1 + [6,0], p2 + [0, -8], p2]),
+  bezier_curve([p2, p2 + [0,2], p3 + [6, 0], p3])
 );
 
 module arm(path) {

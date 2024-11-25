@@ -1,15 +1,14 @@
-use <../../lib/shapes.scad>
+include <BOSL2/std.scad>
 $fa = $preview ? 1 : .1;
 $fs = $preview ? 1 : .1;
 
 depth = 101;
 height = 101;
 width = 70;
-wall = 1.6;
+wall = 2;
 
-difference() {
-  box(x=depth+2*wall, y=width+2*wall, z=height+wall, on="z-");
-  box(x=depth,        y=width,        z=height,      on="z-");
-  rotate([90,0,0])
-    cylinder(d=height/4, h=width+2*wall+1, center=true);
+diff()
+rect_tube(h=height+wall, isize=[width, depth], wall=wall) {
+  tag("keep") attach(BOT, BOT, inside=true) cube([width, depth, wall]);
+  tag("remove") attach(TOP) xcyl(d=height/4, h=99);
 }
