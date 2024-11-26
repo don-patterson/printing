@@ -9,7 +9,7 @@ prop_map = [
   ["socket.depth", 8],
   ["socket.wall.thick", 1.8],
   ["socket.wall.thin", 1.0],
-  ["socket.chamfer.start", 1], // min 0.75 for current (arbitrary) bump size
+  ["socket.chamfer.start", .75], // min 0.75 to make room for the tab
   ["margin.s", 0.05],
   ["margin.m", 0.1],
 
@@ -35,10 +35,7 @@ module socket(
   diff()
   rect_tube(h=depth, size=width, wall=thick_wall)
     attach(TOP, TOP, inside=true, shiftout=0.01)
-      // I think this 2-sided variant could be handy, with cutouts only on the vertical walls
-      // to make the horizonal part (think shelf hooks) extra sturdy
-      cuboid([width-2*thin_wall, width-2*thick_wall, chamfer_start + chamfer],
-             chamfer=chamfer, edges=[BOT+LEFT, BOT+RIGHT]);
+      cuboid([width-2*thin_wall, width-2*thin_wall, chamfer_start + chamfer], chamfer=chamfer, edges=BOT);
 }
 
 // TODO: could turn all these arbitrary values into properties
@@ -48,6 +45,7 @@ module plug(
   depth=prop("plug.depth"),
   tab_width=prop("plug.tab.width"),
   plate_width=prop("plug.plate.width"),
+  horizontal_tabs=true,
 ) {
   diff() // for the "attached" cutouts
   cuboid([width, width, depth], anchor=BOT) {
@@ -57,22 +55,28 @@ module plug(
       attach([LEFT,RIGHT,FRONT,BACK], TOP, inside=true, shiftout=0.01, align=TOP)
         cuboid([6, 0.8, (plate_width-width)/2]);
 
-    // bumps to stick out and snap fit in the chamfered part of the wall
-    position(TOP+LEFT) right(0.3) down(.25) ycyl(l=tab_width, r=0.8, anchor=TOP);
-    position(TOP+RIGHT) left(0.3) down(.25) ycyl(l=tab_width, r=0.8, anchor=TOP);
+    // tabs to stick out and snap fit in the chamfered part of the wall
+    position(TOP+LEFT) right(0.3) ycyl(l=tab_width, r=0.8, anchor=TOP);
+    position(TOP+RIGHT) left(0.3) ycyl(l=tab_width, r=0.8, anchor=TOP);
+    if (horizontal_tabs) {
+      position(TOP+FWD)   back(0.3) xcyl(l=tab_width, r=0.8, anchor=TOP);
+      position(TOP+BACK)   fwd(0.3) xcyl(l=tab_width, r=0.8, anchor=TOP);
+    }
 
-    // cut around the bumps to leave a thing filament spring for the bumps
-    attach(TOP, TOP, inside=true, shiftout=0.01, align=[LEFT,RIGHT], inset=0.8)
-      cuboid([0.8, 2*tab_width, 2.8]);
-    attach(TOP, TOP, inside=true, shiftout=0.01, align=[LEFT,RIGHT], overlap=-2.1)
-      cuboid([1.6, 2*tab_width, 0.8]);
+    // cut around the tabs to leave a thin filament spring
+    attach(TOP, TOP, inside=true, shiftout=0.01, align=[LEFT,RIGHT], inset=0.8) cuboid([0.8, 12, 2.55]);
+    attach(TOP, TOP, inside=true, shiftout=0.01, align=[LEFT,RIGHT], overlap=-1.6) cuboid([1.6, 12, 0.8]);
+    if (horizontal_tabs) {
+      attach(TOP, TOP, inside=true, shiftout=0.01, align=[FWD,BACK], inset=0.8) cuboid([12, 0.8, 2.55]);
+      attach(TOP, TOP, inside=true, shiftout=0.01, align=[FWD,BACK], overlap=-1.6) cuboid([12, 1.6, 0.8]);
+    }
 
     children();
   }
 }
 
 module hsw_plug() {
-  plug()
+  plug(horizontal_tabs=false)
     attach(TOP, TOP, inside=true, shiftout=0.01)
       regular_prism(6, id=13.4, h=30);
 }
@@ -85,17 +89,16 @@ module hollow_plug() {
 
 
 // example:
-cols=3; // [1:1:20]
-rows=2;  // [1:1:20]
 width=prop("socket.width");
-// Note that orientation matters. This is a `cols` wide by `rows` high wall
+cols=4;
+rows=3;
 for (i=[0:cols-1]) {
   for (j=[0:rows-1]) {
     right(i*width) back(j*width) socket();
   }
 }
+
 up(2) fwd(24) {
-  plug();
-  right(21) hsw_plug();
-  right(42) hollow_plug();
+  hollow_plug();
+  right(22) hsw_plug();
 }
