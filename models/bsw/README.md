@@ -10,3 +10,7 @@ build out some hooks, shelves, gridfinity shelves, etc.
 Perhaps with BOSL2 I can make each insert type an "attachable", then it would be easy to mix and match.
 
 Note: It's super easy to break the insert when using a flat screwdriver to pop it out, so be gentle.
+
+Printing tip: If you have a 10x10 wall (210mm x 210mm) it's the max size of the Prusa MK4 print bed, and won't align
+automatically by default. But if you manually specify 125 as the X (or Y, I forget) position in the slicer, it will
+turn green and the slicer will accept it.
