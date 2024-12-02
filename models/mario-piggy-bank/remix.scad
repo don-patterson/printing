@@ -70,7 +70,7 @@ module lid() {
 }
 
 module accents() {
-  rotate([0, 90, ])
-    scale(new_s)
+  scale([new_s, new_s, 1]) // don't scale the thickness
+    rotate([0, 90, 0])
       import("./original/___.stl");
 }
