@@ -13,16 +13,18 @@ prop_map = [
   ["plug.faceplate.depth", 1.4],
   ["spring.thickness", 0.8],
   ["spring.gap", 0.6],
-  ["margin", 0.1], // TODO: do BOSL2 $slop test
+  ["margin", 0.1], // TODO: could do BOSL2 $slop test
 
   // computed values
+  ["socket.chamfer.w", "$socket.wall * 0.4"],
+  ["socket.chamfer.d", "$socket.wall * 0.5"],
   ["plug.width", "$socket.width - (2 * $socket.wall)"],
   ["plug.depth", "$socket.depth"],
   ["plug.faceplate.width", "$socket.width - (2 * $margin)"],
-  ["tab.height", "$socket.wall / 2"],
-  ["tab.width", 5],
-  ["spring.height", "$socket.wall * 0.75"],
+  ["spring.height", "$socket.chamfer.d * 1.5"],
   ["spring.width", "$plug.width - (6 * $spring.thickness)"],
+  ["tab.height", "$socket.chamfer.d"],
+  ["tab.width", "$spring.width / 3"],
 ];
 function prop(key) = getprop(key, prop_map);
 
@@ -32,12 +34,12 @@ module _wedge(
   margin_h=0,
   width=prop("socket.width"),
   wall=prop("socket.wall"),
+  chamfer_w=prop("socket.chamfer.w"),
+  chamfer_d=prop("socket.chamfer.d"),
   anchor=undef,
 ) {
-  bot = width - 1.2*wall + margin_xy; // TODO make this a property
-  top = width - 2*wall + margin_xy;
-  h = wall/2 + margin_h;
-  prismoid(size1=bot, size2=top, h=h, anchor=anchor)
+  w = width - 2*wall + margin_xy;
+  prismoid(size1=w + 2*chamfer_w, size2=w, h=chamfer_d, anchor=anchor)
     children();
 }
 
@@ -53,13 +55,15 @@ module socket(
       _wedge(margin_h=eps);
 }
 
+// pointy part that catches when the plug is fully inserted
 module _tab(
   height=prop("tab.height"),
   width=prop("tab.width"),
 ) {
-  prismoid(size1=[height, width], size2=[0.2, width], h=0.6);
+  prismoid(size1=[width, height], size2=[width, 0.2], h=0.4);
 }
 
+// base for all plugs that print on the face
 module plug(
   width=prop("plug.width"),
   depth=prop("plug.depth"),
@@ -95,50 +99,11 @@ module plug(
         cuboid([spring_width, spring_thickness+spring_gap, spring_gap]);
     }
 
-    // TODO: do the tabs now
-  }
-}
-
-// back_half() {
-// socket();
-plug();
-// }
-
-// The main plug shape (fully filled in) with faceplate and tabs to snap in place
-module plug_block(
-  width=prop("plug.width"),
-  depth=prop("plug.depth"),
-  tab_width=prop("plug.tab.width"),
-  tab_cutout_width=prop("plug.tab.cutout.width"),
-  faceplate_width=prop("plug.faceplate.width"),
-  faceplate_thickness=prop("plug.faceplace.thickness"),
-  horizontal_tabs=true,
-) {
-  diff() // for the "attached" cutouts
-  cuboid([width, width, depth], anchor=BOT) {
-    // face plate
-    position(BOTTOM) cuboid([faceplate_width, faceplate_width, faceplate_thickness], anchor=TOP)
-      // cutout for a flat screwdriver to pop out the plug
-      attach([LEFT,RIGHT,FRONT,BACK], TOP, inside=true, shiftout=0.01, align=TOP)
-        cuboid([6, 0.8, (faceplate_width-width)/2]);
-
-    // tabs to stick out and snap fit in the chamfered part of the wall
-    position(TOP+LEFT) right(0.3) ycyl(l=tab_width, r=0.8, anchor=TOP);
-    position(TOP+RIGHT) left(0.3) ycyl(l=tab_width, r=0.8, anchor=TOP);
+    // tab to catch and snap in place
+    attach([RIGHT, LEFT], BOT, align=TOP) _tab();
     if (horizontal_tabs) {
-      position(TOP+FWD) back(0.3) xcyl(l=tab_width, r=0.8, anchor=TOP);
-      position(TOP+BACK) fwd(0.3) xcyl(l=tab_width, r=0.8, anchor=TOP);
+      attach([FWD, BACK], BOT, align=TOP) _tab();
     }
-
-    // cut around the tabs to leave a thin filament spring
-    attach(TOP, TOP, inside=true, shiftout=0.01, align=[LEFT,RIGHT], inset=0.8) cuboid([0.8, tab_cutout_width, 2.55]);
-    attach(TOP, TOP, inside=true, shiftout=0.01, align=[LEFT,RIGHT], overlap=-1.6) cuboid([1.6, tab_cutout_width, 0.8]);
-    if (horizontal_tabs) {
-      attach(TOP, TOP, inside=true, shiftout=0.01, align=[FWD,BACK], inset=0.8) cuboid([tab_cutout_width, 0.8, 2.55]);
-      attach(TOP, TOP, inside=true, shiftout=0.01, align=[FWD,BACK], overlap=-1.6) cuboid([tab_cutout_width, 1.6, 0.8]);
-    }
-
-    children();
   }
 }
 
