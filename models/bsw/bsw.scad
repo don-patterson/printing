@@ -8,24 +8,24 @@ prop_map = [
   ["socket.width", 21],
   ["socket.depth", 8],
   ["socket.wall", 2],
-  ["socket.rounding", 0.5],
+  ["socket.rounding", 0.8],
   ["insert.width", 12],
   ["hsw.insert.width", 13.3], // by the spec it's 13.4 but I found that was too loose
-  ["plug.faceplate.depth", 1.4],
+  ["plug.faceplate.depth", 1.8],
   ["spring.thickness", 0.8],
   ["spring.gap", 0.6],
   ["margin", 0.1], // TODO: could do BOSL2 $slop test
 
   // computed values
-  ["socket.chamfer.w", "$socket.wall * 0.4"],
-  ["socket.chamfer.d", "$socket.wall * 0.5"],
+  ["socket.chamfer.w", "$socket.wall * 0.5"],
+  ["socket.chamfer.d", "$socket.wall * 0.6"],
   ["plug.width", "$socket.width - (2 * $socket.wall)"],
   ["plug.depth", "$socket.depth"],
   ["plug.faceplate.width", "$socket.width - (2 * $margin)"],
   ["spring.height", "$socket.chamfer.d * 1.5"],
-  ["spring.width", "$plug.width - (6 * $spring.thickness)"],
+  ["spring.width", "$plug.width * 0.65"],
   ["tab.height", "$socket.chamfer.d"],
-  ["tab.width", "$spring.width / 3"],
+  ["tab.width", "$spring.width * 0.4"],
 ];
 function prop(key) = getprop(key, prop_map);
 
@@ -63,8 +63,12 @@ module _tab(
   height=prop("tab.height"),
   width=prop("tab.width"),
 ) {
+  // I just fiddled with these values until it looked ok
   prismoid(size1=[width, height], size2=[width, 0.2], h=0.4);
 }
+// inspect and adjust:
+// back_half() socket();
+// fwd(0.5) back_half() plug();
 
 // base for all plugs that print on the face
 module plug(
@@ -120,5 +124,7 @@ module wall(x, y, width=prop("socket.width")) {
 }
 
 // example
-left(25) up(1.4) plug();
+left(prop("socket.width") + 5)
+  up(prop("plug.faceplate.depth"))
+    plug();
 wall(3, 2);
