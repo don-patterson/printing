@@ -8,6 +8,7 @@ prop_map = [
   ["socket.width", 21],
   ["socket.depth", 8],
   ["socket.wall", 2],
+  ["socket.rounding", 0.5],
   ["insert.width", 12],
   ["hsw.insert.width", 13.3], // by the spec it's 13.4 but I found that was too loose
   ["plug.faceplate.depth", 1.4],
@@ -36,10 +37,11 @@ module _wedge(
   wall=prop("socket.wall"),
   chamfer_w=prop("socket.chamfer.w"),
   chamfer_d=prop("socket.chamfer.d"),
+  rounding=prop("socket.rounding"),
   anchor=undef,
 ) {
   w = width - 2*wall + margin_xy;
-  prismoid(size1=w + 2*chamfer_w, size2=w, h=chamfer_d, anchor=anchor)
+  prismoid(size1=w + 2*chamfer_w, size2=w, h=chamfer_d, anchor=anchor, rounding1=2*rounding, rounding2=rounding)
     children();
 }
 
@@ -48,9 +50,10 @@ module socket(
   width=prop("socket.width"),
   depth=prop("socket.depth"),
   wall=prop("socket.wall"),
+  rounding=prop("socket.rounding"),
 ) {
   diff()
-  rect_tube(h=depth, size=width, wall=wall)
+  rect_tube(h=depth, size=width, wall=wall, irounding=rounding)
     attach([TOP,BOT], BOT, inside=true, shiftout=eps)
       _wedge(margin_h=eps);
 }
@@ -70,6 +73,7 @@ module plug(
   faceplate_width=prop("plug.faceplate.width"),
   faceplate_depth=prop("plug.faceplate.depth"),
   margin=prop("margin"),
+  rounding=prop("socket.rounding"),
   spring_gap=prop("spring.gap"),
   spring_height=prop("spring.height"),
   spring_thickness=prop("spring.thickness"),
@@ -77,7 +81,7 @@ module plug(
   horizontal_tabs=true,
 ) {
   diff()
-  cuboid([width - margin, width - margin, depth], anchor=BOT) {
+  cuboid([width - margin, width - margin, depth], anchor=BOT, rounding=rounding, edges="Z") {
     // pyramid shape to fit the socket
     position(BOTTOM) _wedge(margin_xy=-margin);
 
@@ -114,3 +118,7 @@ module wall(x, y, width=prop("socket.width")) {
     }
   }
 }
+
+// example
+left(25) up(1.4) plug();
+wall(3, 2);
