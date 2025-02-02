@@ -112,6 +112,8 @@ module plug(
     if (horizontal_tabs) {
       attach([FWD, BACK], BOT, align=TOP) _tab();
     }
+
+    children();
   }
 }
 
@@ -123,8 +125,21 @@ module wall(x, y, width=prop("socket.width")) {
   }
 }
 
+module hsw_plug(r=prop("hsw.insert.width")) {
+  plug()
+    attach(TOP, TOP, inside=true, shiftout=eps)
+      regular_prism(6, id=r, h=99);
+}
+
+module hollow_plug(width=prop("insert.width")) {
+  plug()
+    attach(TOP, TOP, inside=true, shiftout=eps)
+      cuboid([width, width, 99]);
+}
+
 // example
-left(prop("socket.width") + 5)
-  up(prop("plug.faceplate.depth"))
-    plug();
+up(prop("plug.faceplate.depth")) fwd(25) {
+  hsw_plug();
+  right(25) hollow_plug();
+}
 wall(3, 2);
