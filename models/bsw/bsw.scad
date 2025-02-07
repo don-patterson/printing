@@ -64,14 +64,16 @@ module _tab(
   width=prop("tab.width"),
 ) {
   // I just fiddled with these values until it looked ok
-  prismoid(size1=[width, height], size2=[width, 0.2], h=0.4);
+  // h=0.4 is snug, but not super tight
+  // h=0.5 is very tight but maybe too hard to remove
+  prismoid(size1=[width, height], size2=[width, 0.2], h=0.5);
 }
 // inspect and adjust:
 // back_half() socket();
 // fwd(0.5) back_half() plug();
 
 // base for all plugs that print on the face
-module plug(
+module base_plug(
   width=prop("plug.width"),
   depth=prop("plug.depth"),
   faceplate_width=prop("plug.faceplate.width"),
@@ -117,29 +119,53 @@ module plug(
   }
 }
 
-module wall(x, y, width=prop("socket.width")) {
-  for (i=[0:x-1]) {
-    for (j=[0:y-1]) {
-      right(i*width) back(j*width) socket();
-    }
-  }
-}
-
 module hsw_plug(r=prop("hsw.insert.width")) {
-  plug()
+  base_plug()
     attach(TOP, TOP, inside=true, shiftout=eps)
       regular_prism(6, id=r, h=99);
 }
 
-module hollow_plug(width=prop("insert.width")) {
-  plug()
+module plug(insert=prop("insert.width")) {
+  base_plug()
     attach(TOP, TOP, inside=true, shiftout=eps)
-      cuboid([width, width, 99]);
+      cuboid([insert, insert, 99]);
 }
 
-// example
-up(prop("plug.faceplate.depth")) fwd(25) {
-  hsw_plug();
-  right(25) hollow_plug();
+module plug_2x(
+  insert=prop("insert.width"),
+  dx=prop("socket.width"),
+  faceplate_depth=prop("plug.faceplate.depth"),
+  faceplate_width=prop("plug.faceplate.width"),
+) {
+  plug();
+  right(dx) plug();
+  // fill the gap between them
+  right(dx/2) cuboid([3, faceplate_width, faceplate_depth], anchor=TOP);
 }
-wall(3, 2);
+
+module inside_corner_plug_2x(
+  insert=prop("insert.width"),
+  dx=prop("socket.width"),
+  fd=prop("plug.faceplate.depth"),
+  fw=prop("plug.faceplate.width"),
+  sw=prop("socket.width"),
+  sd=prop("socket.depth"),
+) {
+  yrot(45) {
+    right(sw/2) plug();
+    right(fd) down(sw) yrot(-90) right(sw/2) up(fd) plug();
+    // fill the gap between them
+    cuboid([3, fw, fd], anchor=TOP+LEFT);
+  }
+}
+// 90 degree walls
+// right(21/2) wall(3, 2);
+// left(8) yrot(90) right(21/2) wall(3, 2);
+
+// inside_corner_plug_2x();
+
+// example
+// up(prop("plug.faceplate.depth")) fwd(25) {
+//   plug();
+//   right(25) plug();
+// }
