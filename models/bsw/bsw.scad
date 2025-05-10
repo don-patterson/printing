@@ -1,7 +1,7 @@
-# License note:
-# STLs and similar physical shapes produced from this code are derivative works of Honeycomb Storage Wall by RostaP
-# and must be released under the same CC-BY-NC license (or a stricter CC 4.0 version). The `stl` folder in this
-# repo has that license file, so any files in and under that directory are shared with the CC-BY-NC license.
+// License note:
+// STLs and similar physical shapes produced from this code are derivative works of Honeycomb Storage Wall by RostaP
+// and must be released under the same CC-BY-NC license (or a stricter CC 4.0 version). The `stl` folder in this
+// repo has that license file, so any files in and under that directory are shared with the CC-BY-NC license.
 
 use <prop-lib.scad>        // https://github.com/don-patterson/printing/blob/main/lib/prop-lib.scad
 include <BOSL2/std.scad>   // https://github.com/BelfrySCAD/BOSL2
@@ -73,9 +73,6 @@ module _tab(
   // h=0.5 is very tight but maybe too hard to remove
   prismoid(size1=[width, height], size2=[width, 0.2], h=0.5);
 }
-// inspect and adjust:
-// back_half() socket();
-// fwd(0.5) back_half() plug();
 
 // base for all plugs that print on the face
 module base_plug(
@@ -123,54 +120,3 @@ module base_plug(
     children();
   }
 }
-
-module hsw_plug(r=prop("hsw.insert.width")) {
-  base_plug()
-    attach(TOP, TOP, inside=true, shiftout=eps)
-      regular_prism(6, id=r, h=99);
-}
-
-module plug(insert=prop("insert.width")) {
-  base_plug()
-    attach(TOP, TOP, inside=true, shiftout=eps)
-      cuboid([insert, insert, 99]);
-}
-
-module plug_2x(
-  insert=prop("insert.width"),
-  dx=prop("socket.width"),
-  faceplate_depth=prop("plug.faceplate.depth"),
-  faceplate_width=prop("plug.faceplate.width"),
-) {
-  plug();
-  right(dx) plug();
-  // fill the gap between them
-  right(dx/2) cuboid([3, faceplate_width, faceplate_depth], anchor=TOP);
-}
-
-module inside_corner_plug_2x(
-  insert=prop("insert.width"),
-  dx=prop("socket.width"),
-  fd=prop("plug.faceplate.depth"),
-  fw=prop("plug.faceplate.width"),
-  sw=prop("socket.width"),
-  sd=prop("socket.depth"),
-) {
-  yrot(45) {
-    right(sw/2) plug();
-    right(fd) down(sw) yrot(-90) right(sw/2) up(fd) plug();
-    // fill the gap between them
-    cuboid([3, fw, fd], anchor=TOP+LEFT);
-  }
-}
-// 90 degree walls
-// right(21/2) wall(3, 2);
-// left(8) yrot(90) right(21/2) wall(3, 2);
-
-// inside_corner_plug_2x();
-
-// example
-// up(prop("plug.faceplate.depth")) fwd(25) {
-//   plug();
-//   right(25) plug();
-// }

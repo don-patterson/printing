@@ -1,7 +1,7 @@
-# License note:
-# STLs and similar physical shapes produced from this code are derivative works of Honeycomb Storage Wall by RostaP
-# and must be released under the same CC-BY-NC license (or a stricter CC 4.0 version). The `stl` folder in this
-# repo has that license file, so any files in and under that directory are shared with the CC-BY-NC license.
+// License note:
+// STLs and similar physical shapes produced from this code are derivative works of Honeycomb Storage Wall by RostaP
+// and must be released under the same CC-BY-NC license (or a stricter CC 4.0 version). The `stl` folder in this
+// repo has that license file, so any files in and under that directory are shared with the CC-BY-NC license.
 include <./bsw.scad>
 
 module plug(insert=prop("insert.width")) {
