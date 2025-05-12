@@ -27,6 +27,7 @@ prop_map = [
   ["plug.width", "$socket.width - (2 * $socket.wall)"],
   ["plug.depth", "$socket.depth"],
   ["plug.faceplate.width", "$socket.width - (2 * $margin)"],
+  ["insert.depth", "$socket.depth + $plug.faceplate.depth"],
   ["spring.height", "$socket.chamfer.d * 1.5"],
   ["spring.width", "$plug.width * 0.65"],
   ["tab.height", "$socket.chamfer.d"],
