@@ -4,13 +4,16 @@ $fs = .5;
 eps = 0.01;
 
 ring_d = 128;
-ring_h = 5;
+ring_h = 8;
 ring_t = 4;
 
 lid_t = 3;
 lid_d = ring_d + 5;
+
 bowl_r = 80;
 bowl_h = 8;
+
+handle_w = 15;
 
 module lid() {
   cyl(h=lid_t, d=lid_d, anchor=BOT)
@@ -35,8 +38,23 @@ xrot(180) {
     up(lid_t+eps) bowl();
   }
 
+  // handle to grab
   up(lid_t) intersection() {
     down(eps) bowl();
-    cube([ring_d,15,bowl_h], anchor=TOP);
+    cube([ring_d,handle_w,bowl_h], anchor=TOP);
+  }
+
+  // break away supports for the rounded part of the cap
+  up(lid_t) intersection() {
+    // sandwich between the normal bowl and a +.2 bowl to form a small gap
+    down(eps) bowl();
+    up(.2) bowl();
+    difference() {
+      // supports themselves
+      cube([2, ring_d, bowl_h], anchor=TOP);
+
+      // copy of the handle, slightly wider for a small gap
+      cube([ring_d,handle_w+.2,bowl_h], anchor=TOP);
+    }
   }
 }
