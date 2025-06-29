@@ -1,3 +1,13 @@
+// Update: this was a fun lesson in recursive functions and expression parsing, but
+// could really be replaced entirely with a bunch of global variables and a naming convention.
+// I think I'll try to move off of it and see if I miss anything.
+//
+// Update 2: I just learned the difference between `var` and `$var` and if you defined all your stuff
+// with `$var` (special variables) like BOSL2 does, then you could have cascading overrides...the very
+// thing that has been annoying in my usage of this prop lib. The solution is to delete it hahah.
+
+
+
 // This is a self-contained library that defines `getprop`, a property-map reader with a few basic features.
 // The idea is to define a function like:
 //   function prop(key) = getprop(key, global_props);

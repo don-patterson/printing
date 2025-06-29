@@ -5,18 +5,16 @@
 include <./bsw.scad>
 
 module insert(
-  width=prop("insert.width"),
-  depth=prop("insert.depth"),
+  width=$v_insert_width,
+  depth=$v_insert_depth,
   taper=4,
 ) {
-  prismoid(size1=[width-taper*prop("margin"), width], size2=[width, width], h=depth, orient=FWD, anchor=TOP)
+  prismoid(size1=[width-taper*$v_margin, width], size2=[width, width], h=depth, orient=FWD, anchor=TOP)
     children();
 }
 
-module peg(width=prop("insert.width"), length=40) {
+module peg(width=$v_insert_width, length=40) {
   insert()
     attach(TOP, BACK)
       cube([width, length, width]);
 }
-
-peg();

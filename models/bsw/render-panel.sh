@@ -7,7 +7,7 @@ stl=./stl/panels/$(printf '%02d' $1)x$(printf '%02d' $2).stl
 
 openscad-nightly --backend=Manifold -o "$stl" -D cols=$1 -D rows=$2 - <<EOF
   include <./bsw.scad>
-  width=prop("socket.width");
+  width=\$v_socket_width;
   cols = 1;
   rows = 1;
 

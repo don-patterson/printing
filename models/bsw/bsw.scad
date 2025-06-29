@@ -3,47 +3,45 @@
 // and must be released under the same CC-BY-NC license (or a stricter CC 4.0 version). The `stl` folder in this
 // repo has that license file, so any files in and under that directory are shared with the CC-BY-NC license.
 
-use <prop-lib.scad>        // https://github.com/don-patterson/printing/blob/main/lib/prop-lib.scad
 include <BOSL2/std.scad>   // https://github.com/BelfrySCAD/BOSL2
 $fa = $preview ? .5 : .1;
 $fs = $preview ? .5 : .1;
 eps=0.01;
-prop_map = [
-  // main parameters
-  ["socket.width", 21],
-  ["socket.depth", 8],
-  ["socket.wall", 2],
-  ["socket.rounding", 0.8],
-  ["insert.width", 12],
-  ["hsw.insert.width", 13.3], // by the spec it's 13.4 but I found that was too loose
-  ["plug.faceplate.depth", 1.8],
-  ["spring.thickness", 0.8],
-  ["spring.gap", 0.6],
-  ["margin", 0.1], // TODO: could do BOSL2 $slop test
 
-  // computed values
-  ["socket.chamfer.w", "$socket.wall * 0.5"],
-  ["socket.chamfer.d", "$socket.wall * 0.6"],
-  ["plug.width", "$socket.width - (2 * $socket.wall)"],
-  ["plug.depth", "$socket.depth"],
-  ["plug.faceplate.width", "$socket.width - (2 * $margin)"],
-  ["insert.depth", "$socket.depth + $plug.faceplate.depth"],
-  ["spring.height", "$socket.chamfer.d * 1.5"],
-  ["spring.width", "$plug.width * 0.65"],
-  ["tab.height", "$socket.chamfer.d"],
-  ["tab.width", "$spring.width * 0.4"],
-];
-function prop(key) = getprop(key, prop_map);
+// main parameters
+$v_socket_width         = 21;
+$v_socket_depth         = 8;
+$v_socket_wall          = 2;
+$v_socket_rounding      = 0.8;
+$v_insert_width         = 12;
+$v_hsw_insert_width     = 13.3; // by the spec it's 13.4 but I found that was too loose
+$v_plug_faceplate_depth = 1.8;
+$v_spring_thickness     = 0.8;
+$v_spring_gap           = 0.6;
+$v_margin               = 0.1; // TODO: could do BOSL2 $slop test
+
+// computed values
+$v_socket_chamfer_w     = $v_socket_wall * 0.5;
+$v_socket_chamfer_d     = $v_socket_wall * 0.6;
+$v_plug_width           = $v_socket_width - 2 * $v_socket_wall;
+$v_plug_depth           = $v_socket_depth;
+$v_plug_faceplate_width = $v_socket_width - 2 * $v_margin;
+$v_insert_depth         = $v_socket_depth + $v_plug_faceplate_depth;
+$v_spring_height        = $v_socket_chamfer_d * 1.5;
+$v_spring_width         = $v_plug_width * 0.65;
+$v_tab_height           = $v_socket_chamfer_d;
+$v_tab_width            = $v_spring_width * 0.4;
+
 
 // pyramid section for the chamfered section of the socket
 module _wedge(
   margin_xy=0,
   margin_h=0,
-  width=prop("socket.width"),
-  wall=prop("socket.wall"),
-  chamfer_w=prop("socket.chamfer.w"),
-  chamfer_d=prop("socket.chamfer.d"),
-  rounding=prop("socket.rounding"),
+  width=$v_socket_width,
+  wall=$v_socket_wall,
+  chamfer_w=$v_socket_chamfer_w,
+  chamfer_d=$v_socket_chamfer_d,
+  rounding=$v_socket_rounding,
   anchor=undef,
 ) {
   w = width - 2*wall + margin_xy;
@@ -53,10 +51,10 @@ module _wedge(
 
 // the basic component of the wall board
 module socket(
-  width=prop("socket.width"),
-  depth=prop("socket.depth"),
-  wall=prop("socket.wall"),
-  rounding=prop("socket.rounding"),
+  width=$v_socket_width,
+  depth=$v_socket_depth,
+  wall=$v_socket_wall,
+  rounding=$v_socket_rounding,
 ) {
   diff()
   rect_tube(h=depth, size=width, wall=wall, irounding=rounding)
@@ -66,8 +64,8 @@ module socket(
 
 // pointy part that catches when the plug is fully inserted
 module _tab(
-  height=prop("tab.height"),
-  width=prop("tab.width"),
+  height=$v_tab_height,
+  width=$v_tab_width,
 ) {
   // I just fiddled with these values until it looked ok
   // h=0.4 is snug, but not super tight
@@ -77,17 +75,18 @@ module _tab(
 
 // base for all plugs that print on the face
 module base_plug(
-  width=prop("plug.width"),
-  depth=prop("plug.depth"),
-  faceplate_width=prop("plug.faceplate.width"),
-  faceplate_depth=prop("plug.faceplate.depth"),
-  margin=prop("margin"),
-  rounding=prop("socket.rounding"),
-  spring_gap=prop("spring.gap"),
-  spring_height=prop("spring.height"),
-  spring_thickness=prop("spring.thickness"),
-  spring_width=prop("spring.width"),
-  horizontal_tabs=true,
+  width=$v_plug_width,
+  depth=$v_plug_depth,
+  faceplate_width=$v_plug_faceplate_width,
+  faceplate_depth=$v_plug_faceplate_depth,
+  margin=$v_margin,
+  rounding=$v_socket_rounding,
+  spring_gap=$v_spring_gap,
+  spring_height=$v_spring_height,
+  spring_thickness=$v_spring_thickness,
+  spring_width=$v_spring_width,
+  tabs=[LEFT,RIGHT,FWD,BACK],  // springy tabs that stick out to snap the plug in place
+  slots=[LEFT,RIGHT,FWD,BACK], // cutouts for a flat screwdriver to help pop out the plug
 ) {
   diff()
   cuboid([width - margin, width - margin, depth], anchor=BOT, rounding=rounding, edges="Z") {
@@ -97,25 +96,32 @@ module base_plug(
     // face plate
     position(BOTTOM) cuboid([faceplate_width, faceplate_width, faceplate_depth], anchor=TOP)
       // cutout for a flat screwdriver to pop out the plug
-      attach([LEFT,RIGHT,FRONT,BACK], TOP, inside=true, shiftout=eps, align=TOP)
+      attach(slots, TOP, inside=true, shiftout=eps, align=TOP)
         cuboid([6, 0.6, 1.2]);
 
-    // cut around the tabs to leave a thin filament spring
-    attach(TOP, TOP, inside=true, shiftout=eps, align=[LEFT,RIGHT], inset=spring_thickness)
-      cuboid([spring_gap, spring_width, spring_height+spring_gap]);
-    attach(TOP, TOP, inside=true, shiftout=eps, align=[LEFT,RIGHT], overlap=-spring_height)
-      cuboid([spring_thickness+spring_gap, spring_width, spring_gap]);
-    if (horizontal_tabs) {
-      attach(TOP, TOP, inside=true, shiftout=eps, align=[FWD,BACK], inset=spring_thickness)
-        cuboid([spring_width, spring_gap, spring_height+spring_gap]);
-      attach(TOP, TOP, inside=true, shiftout=eps, align=[FWD,BACK], overlap=-spring_height)
-        cuboid([spring_width, spring_thickness+spring_gap, spring_gap]);
-    }
+    // TODO: probably can do this all in one loop but I couldn't figure out how to make
+    // the left/right cutouts behave the same as the fwd/back ones
+    for (direction=[LEFT, RIGHT]) {
+      if (in_list(direction, tabs)) {
+        // cut around the tabs to leave a thin filament spring
+        attach(TOP, TOP, inside=true, shiftout=eps, align=direction, inset=spring_thickness)
+          cuboid([spring_gap, spring_width, spring_height+spring_gap]);
+        attach(TOP, TOP, inside=true, shiftout=eps, align=direction, overlap=-spring_height)
+          cuboid([spring_thickness+spring_gap, spring_width, spring_gap]);
 
-    // tab to catch and snap in place
-    attach([RIGHT, LEFT], BOT, align=TOP) _tab();
-    if (horizontal_tabs) {
-      attach([FWD, BACK], BOT, align=TOP) _tab();
+        attach(direction, BOT, align=TOP) _tab();
+      }
+    }
+    for (direction=[FWD, BACK]) {
+      if (in_list(direction, tabs)) {
+        // cut around the tabs to leave a thin filament spring
+        attach(TOP, TOP, inside=true, shiftout=eps, align=direction, inset=spring_thickness)
+          cuboid([spring_width, spring_gap, spring_height+spring_gap]);
+        attach(TOP, TOP, inside=true, shiftout=eps, align=direction, overlap=-spring_height)
+          cuboid([spring_width, spring_thickness+spring_gap, spring_gap]);
+
+        attach(direction, BOT, align=TOP) _tab();
+      }
     }
 
     children();

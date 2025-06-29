@@ -4,23 +4,23 @@
 // repo has that license file, so any files in and under that directory are shared with the CC-BY-NC license.
 include <./bsw.scad>
 
-module plug(insert=prop("insert.width")) {
+module plug(insert=$v_insert_width) {
   base_plug()
     attach(TOP, TOP, inside=true, shiftout=eps)
       cuboid([insert, insert, 99]);
 }
 
-module hsw_plug(r=prop("hsw.insert.width")) {
+module hsw_plug(r=$v_hsw_insert_width) {
   base_plug()
     attach(TOP, TOP, inside=true, shiftout=eps)
       regular_prism(6, id=r, h=99);
 }
 
 module plug_2x(
-  insert=prop("insert.width"),
-  dx=prop("socket.width"),
-  faceplate_depth=prop("plug.faceplate.depth"),
-  faceplate_width=prop("plug.faceplate.width"),
+  insert=$v_insert_width,
+  dx=$v_socket_width,
+  faceplate_depth=$v_plug_faceplate_depth,
+  faceplate_width=$v_plug_faceplate_width,
 ) {
   plug();
   right(dx) plug();
@@ -29,12 +29,12 @@ module plug_2x(
 }
 
 module inside_corner_plug_2x(
-  insert=prop("insert.width"),
-  dx=prop("socket.width"),
-  fd=prop("plug.faceplate.depth"),
-  fw=prop("plug.faceplate.width"),
-  sw=prop("socket.width"),
-  sd=prop("socket.depth"),
+  insert=$v_insert_width,
+  dx=$v_socket_width,
+  fd=$v_plug_faceplate_depth,
+  fw=$v_plug_faceplate_width,
+  sw=$v_socket_width,
+  sd=$v_socket_depth,
 ) {
   yrot(45) {
     right(sw/2) plug();
@@ -43,3 +43,10 @@ module inside_corner_plug_2x(
     cuboid([3, fw, fd], anchor=TOP+LEFT);
   }
 }
+
+module hinge_plug() {
+  base_plug(faceplate_depth=3, slots=[LEFT,FWD,BACK]);
+}
+
+
+hinge_plug();
