@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+# Make an stl with the latest git hash
+[ "$1" ] || { echo >&2 "usage: $0 file.scad [dir]"; exit 1; }
+dir=${2-$(dirname "$1")}
+name=$(basename "$1" .scad)
+if git ls-files --error-unmatch -- "$1" &>/dev/null \
+&& git diff --quiet -- "$1" \
+&& git diff --quiet --staged -- "$1"; then
+  name="$name-$(git rev-parse --short HEAD)"
+else
+  name="$name-wip" # untracked or modified
+fi
+
+openscad-nightly --backend=Manifold "$1" -o "$dir/$name.stl" && echo "rendered $dir/$name.stl"

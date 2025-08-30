@@ -3,7 +3,7 @@ $fa = .5;
 $fs = .5;
 eps = 0.01;
 
-ring_d = 128;
+ring_d = 130;
 ring_h = 8;
 ring_t = 4;
 
