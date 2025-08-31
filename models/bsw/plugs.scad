@@ -4,6 +4,7 @@
 // repo has that license file, so any files in and under that directory are shared with the CC-BY-NC license.
 include <don/bosl2-shapes.scad>
 include <./bsw.scad>
+include <BOSL2/screws.scad>
 
 module plug(insert=$v_insert_width, slots=[LEFT,RIGHT,FWD,BACK]) {
   base_plug(slots=slots)
@@ -57,4 +58,8 @@ module hinge_plug() {
   right($v_socket_width/2) end_hinge(width=v_plug_faceplate_width(), segments=10, thickness=3, end_gap=0.1, anchor=TOP, spin=90);
 }
 
-hinge_plug();
+module screw_plug(head="flat", size="M3") {
+  base_plug()
+    attach(BOT)
+      screw_hole(spec=str(size, ",", v_insert_depth()), head=head, counterbore=v_insert_depth()/3, anchor=TOP);
+}

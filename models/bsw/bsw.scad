@@ -123,7 +123,6 @@ module base_plug(
         attach(direction, BOT, align=TOP) _tab();
       }
     }
-
-    children();
+    down(faceplate_depth) children();
   }
 }
