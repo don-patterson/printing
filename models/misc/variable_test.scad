@@ -68,6 +68,14 @@ module test_5_env_alias(s=$cube_side) {
   basic_sphere_func();
 }
 
+module test_6_defaults($cube_side=$cube_side, d=f_sphere_d()) {
+  // cube_side is set in the args, see if d is computed after that
+  basic_cube();
+  basic_sphere(d); // d is 2, f_sphere_d() is 4, so it gets tricky if you set things in the args
+  // but also, when would you be changing a computed value anyway, You shouldn't have to override that
+  translate([$cube_side, 0, 0]) basic_sphere_func();
+}
+
 
 translate([0, -20, 0]) {
   // original unscaled
@@ -93,4 +101,8 @@ translate([30,0,0]) color("orange") {
 
 translate([40,0,0]) color("purple") {
   test_5_env_alias(s=8);
+}
+
+translate([50,0,0]) color("indigo") {
+  test_6_defaults(8);
 }

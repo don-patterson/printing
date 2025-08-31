@@ -21,16 +21,16 @@ $v_spring_gap           = 0.6;
 $v_margin               = 0.1; // TODO: could do BOSL2 $slop test
 
 // computed values
-$v_socket_chamfer_w     = $v_socket_wall * 0.5;
-$v_socket_chamfer_d     = $v_socket_wall * 0.6;
-$v_plug_width           = $v_socket_width - 2 * $v_socket_wall;
-$v_plug_depth           = $v_socket_depth;
-$v_plug_faceplate_width = $v_socket_width - 2 * $v_margin;
-$v_insert_depth         = $v_socket_depth + $v_plug_faceplate_depth;
-$v_spring_height        = $v_socket_chamfer_d * 1.5;
-$v_spring_width         = $v_plug_width * 0.65;
-$v_tab_height           = $v_socket_chamfer_d;
-$v_tab_width            = $v_spring_width * 0.4;
+function v_socket_chamfer_w()     = $v_socket_wall * 0.5;
+function v_socket_chamfer_d()     = $v_socket_wall * 0.6;
+function v_plug_width()           = $v_socket_width - 2 * $v_socket_wall;
+function v_plug_depth ()          = $v_socket_depth;
+function v_plug_faceplate_width() = $v_socket_width - 2 * $v_margin;
+function v_insert_depth()         = $v_socket_depth + $v_plug_faceplate_depth;
+function v_spring_height()        = v_socket_chamfer_d() * 1.5;
+function v_spring_width()         = v_plug_width() * 0.65;
+function v_tab_height()           = v_socket_chamfer_d();
+function v_tab_width()            = v_spring_width() * 0.4;
 
 
 // pyramid section for the chamfered section of the socket
@@ -39,8 +39,8 @@ module _wedge(
   margin_h=0,
   width=$v_socket_width,
   wall=$v_socket_wall,
-  chamfer_w=$v_socket_chamfer_w,
-  chamfer_d=$v_socket_chamfer_d,
+  chamfer_w=v_socket_chamfer_w(),
+  chamfer_d=v_socket_chamfer_d(),
   rounding=$v_socket_rounding,
   anchor=undef,
 ) {
@@ -64,8 +64,8 @@ module socket(
 
 // pointy part that catches when the plug is fully inserted
 module _tab(
-  height=$v_tab_height,
-  width=$v_tab_width,
+  height=v_tab_height(),
+  width=v_tab_width(),
 ) {
   // I just fiddled with these values until it looked ok
   // h=0.4 is snug, but not super tight
@@ -75,16 +75,16 @@ module _tab(
 
 // base for all plugs that print on the face
 module base_plug(
-  width=$v_plug_width,
-  depth=$v_plug_depth,
-  faceplate_width=$v_plug_faceplate_width,
+  width=v_plug_width(),
+  depth=v_plug_depth(),
+  faceplate_width=v_plug_faceplate_width(),
   faceplate_depth=$v_plug_faceplate_depth,
   margin=$v_margin,
   rounding=$v_socket_rounding,
   spring_gap=$v_spring_gap,
-  spring_height=$v_spring_height,
+  spring_height=v_spring_height(),
   spring_thickness=$v_spring_thickness,
-  spring_width=$v_spring_width,
+  spring_width=v_spring_width(),
   tabs=[LEFT,RIGHT,FWD,BACK],  // springy tabs that stick out to snap the plug in place
   slots=[LEFT,RIGHT,FWD,BACK], // cutouts for a flat screwdriver to help pop out the plug
 ) {
