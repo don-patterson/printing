@@ -8,7 +8,7 @@ include <BOSL2/screws.scad>
 
 module plug(insert=$v_insert_width, slots=[LEFT,RIGHT,FWD,BACK]) {
   base_plug(slots=slots)
-    attach(TOP, TOP, inside=true, shiftout=eps)
+    attach(TOP, CENTER, inside=true)
       cuboid([insert, insert, 99]);
 }
 
@@ -47,19 +47,22 @@ module inside_corner_plug_2x(
 }
 
 module hinge_plug() {
+  spacing = $v_socket_width + 2*$v_margin;
   $v_plug_faceplate_depth = 3;
   difference() {
     union() {
       plug(slots=[LEFT,FWD,BACK]);
-      right($v_socket_width) plug(slots=[RIGHT,FWD,BACK]);
+      right(spacing) plug(slots=[RIGHT,FWD,BACK]);
     }
-    right($v_socket_width/2) bounding_box() end_hinge(width=v_plug_faceplate_width()+eps, segments=10, thickness=3, end_gap=0.1, anchor=TOP, spin=90);
+    right(spacing/2) bounding_box() end_hinge(width=v_plug_faceplate_width()+eps, segments=10, thickness=3, anchor=TOP, spin=90);
   }
-  right($v_socket_width/2) end_hinge(width=v_plug_faceplate_width(), segments=10, thickness=3, end_gap=0.1, anchor=TOP, spin=90);
+  right(spacing/2) end_hinge(width=v_plug_faceplate_width(), segments=10, thickness=3, anchor=TOP, spin=90);
 }
 
-module screw_plug(head="flat", size="M3") {
+module screw_plug(d=4) {
   base_plug()
-    attach(BOT)
-      screw_hole(spec=str(size, ",", v_insert_depth()), head=head, counterbore=v_insert_depth()/3, anchor=TOP);
+    attach(BOT) tag("remove") {
+      down(1)cyl(r1=0, r2=10, h=10);
+      cyl(d=d, h=v_insert_depth()+eps, anchor=TOP);
+    }
 }
