@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+# New file template
+[ "$1" ] || { echo >&2 "usage: $0 file.scad"; exit 1; }
+mkdir -p "$(dirname "$1")"
+cat >"$1" <<"EOF"
+include <BOSL2/std.scad>
+$fa = $preview ? 1 : .1;
+$fs = $preview ? 1 : .1;
+EOF

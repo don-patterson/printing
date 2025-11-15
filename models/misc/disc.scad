@@ -3,4 +3,5 @@ include <BOSL2/walls.scad>
 $fa = $preview ? 1 : .1;
 $fs = $preview ? 1 : .1;
 
-hex_panel(circle(75/2), 2.5, 10.5, h = 1.6, frame=3);
+hex_panel(shape=circle(r=40), strut=3, spacing=8, h=3, anchor=BOT);
+cyl(h=20, r=14, anchor=BOT);
