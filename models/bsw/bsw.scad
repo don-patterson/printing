@@ -57,9 +57,11 @@ module socket(
   rounding=$v_socket_rounding,
 ) {
   diff()
-  rect_tube(h=depth, size=width, wall=wall, irounding=rounding)
+  rect_tube(h=depth, size=width, wall=wall, irounding=rounding) {
     attach([TOP,BOT], BOT, inside=true, shiftout=eps)
       _wedge(margin_h=eps);
+    children();
+  }
 }
 
 // pointy part that catches when the plug is fully inserted
@@ -126,3 +128,30 @@ module base_plug(
     down(faceplate_depth) children();
   }
 }
+
+module _socket_interior(
+  width=v_plug_width(),
+  depth=v_plug_depth(),
+  wedge_depth=v_socket_chamfer_d(),
+  margin=$v_margin,
+  rounding=$v_socket_rounding,
+) {
+  // it seems a little easier to work with when you build this up rather then define it with diffs
+  _wedge(margin_xy=-margin)
+    attach(TOP, BOT) cuboid([width-margin, width-margin, depth-2*wedge_depth], rounding=rounding, edges="Z")
+      attach(TOP, TOP) _wedge(margin_xy=-margin);
+}
+
+module base_hanger() {
+  // WIP: this is a slice of the socket interior for now. Next is to carve out some of it so that it can be wedged
+  // in like a pegboard peg (i.e. it will lift up, but weight pulling it down will be held)
+  intersection() {
+    _socket_interior();
+    cube([v_plug_width()-$v_margin, $v_socket_width-$v_margin, v_plug_depth()], anchor=BOT);
+  }
+}
+
+  
+right(25) socket();
+base_hanger();
+left(25) base_plug();
