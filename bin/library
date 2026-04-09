@@ -1,0 +1,58 @@
+#!/usr/bin/env bash
+# Manage the entries in the OpenSCAD user library.
+set -euo pipefail
+
+
+# Get the user library path, or bail
+userlib=$(openscad --info 2>&1|sed -n 's/^User Library Path: //p')
+[ -d "$userlib" ] || { echo >&2 "failed to find userlib: $userlib"; exit 1; }
+
+
+function add {
+  # Add a new library to the folder. Can be from git (clone's the repo) or a local folder (symlinks it)
+  [ "${1:-}" ] || { echo >&2 "Usage: $0 add <git@github.com:user/repo.git|/local/folder> [name]"; exit 1; }
+
+  cd "$userlib"
+  case "$1" in
+    git\@github.com:*) git clone "$@" ;;
+    *) ln -s "$@" ;;
+  esac
+}
+
+
+function update {
+  # Calls `git pull` on all of the git repo libraries
+  for dir in "$userlib"/*/; do
+    [ -d "$dir/.git" ] || continue
+    info "updating $(basename "$dir")"
+    git -C "$dir" pull
+  done
+}
+
+
+
+
+
+
+# everything below this is utility functions and input validation
+public_functions=$(declare -F | sed 's/^declare -f //')
+
+function timestamp {
+  date +"%Y-%m-%dT%H:%M:%S%z"
+}
+
+function info {
+  echo >&2 "$(timestamp) INFO: $1"
+}
+
+function error {
+  echo >&2 "$(timestamp) ERROR: $1"
+  exit 1
+}
+
+# validate that this was launched with `$0 COMMAND [args]`
+if ! grep -wq "${1:-}" <<< "$public_functions"; then
+  error "command '${1:-}' not found, must be one of:$(echo; sort <<<"$public_functions" | sed 's/^/   /')"
+fi
+# run the command:
+"$@"
