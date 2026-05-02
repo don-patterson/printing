@@ -32,12 +32,12 @@ difference() {
     ])
   );
 
-  #left(board_t + hole_r - 2)
+  #left(board_t + hole_r - 3)
   path_sweep2d(
     cutout,
     turtle([
       "setdir", 180,
-      "move", 3,
+      "move", 4,
       "arcright", 1,
       "move", 3 + eps,
     ])
