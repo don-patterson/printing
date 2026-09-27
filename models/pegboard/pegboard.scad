@@ -47,7 +47,7 @@ module peg(h, r=peg_r, end_offset=1.2, end_t=1, ring_gap=board_t, ring_t=1, ring
           attach(BACK, FWD, inside=true, shiftout=-(end_t + ring_gap)*slop) ycyl(r=r+ring_r, h=ring_t, anchor=BACK);
 
           // bump out at the tip to snap fit attachements (TODO: make this scale properly with r)
-          attach(FWD, BOT, shiftout=-(7 + (h*wiggle - h))) scale([1.15 * wiggle, 1]) cyl(r=r, h=6, chamfer=1, chamfang=70);
+          attach(FWD, BOT, shiftout=-(7 + (h*wiggle - h))) scale([1.2*wiggle, negative ? 1.2*wiggle : 1]) cyl(r=r, h=5, chamfer=1, chamfang=60);
         }
 
     // cutout for snap fit tip to flex inward
@@ -61,48 +61,52 @@ module parts(shift=15) {
   right(shift) yrot(180) bottom_half() children();
 }
 
-back(30) parts() peg(15);
-back(30) left(30) parts() peg(15);
+// difference() {
+//   cube([10,20,10], anchor=BACK);
+//   peg(15, negative=true);
+// }
+
+parts() peg(15);
 
 
 
-// Shelf demo
-w15_in = 3;
-w15_out = 4;
-w20_in = 3;
-w20_out = 4;
-w25_in = 3;
-w25_out = 4;
-w30_in = 4;
-w30_out = 5;
-w40_in = 5;
-w40_out= 6.3;
-w50_in = 6;
-w50_out= 7.6;
-w60_in = 7;
-w60_out= 8.3;
+// // Shelf demo
+// w15_in = 3;
+// w15_out = 4;
+// w20_in = 3;
+// w20_out = 4;
+// w25_in = 3;
+// w25_out = 4;
+// w30_in = 4;
+// w30_out = 5;
+// w40_in = 5;
+// w40_out= 6.3;
+// w50_in = 6;
+// w50_out= 7.6;
+// w60_in = 7;
+// w60_out= 8.3;
 
-module wera_cutout(in, out) {
-  zrot(45) {
-    xcyl(h=20, d=in*+1, anchor=RIGHT);
-    zcyl(h=20, d=out+1, anchor=CENTER);
-  }
-}
+// module wera_cutout(in, out) {
+//   zrot(45) {
+//     xcyl(h=20, d=in*+1, anchor=RIGHT);
+//     zcyl(h=20, d=out+1, anchor=CENTER);
+//   }
+// }
 
-up(3)
-difference() {
-  cube([87, 17, 6], anchor=BACK);
-  left(40)  peg(15, negative=true);
-  right(40) peg(15, negative=true);
-  fwd(17/2) up(6/2) {
-    xdistribute(spacing=4, sizes=[w15_out, w20_out, w25_out, w30_out, w40_out, w50_out, w60_out]) {
-      wera_cutout(w15_in, w15_out);
-      wera_cutout(w20_in, w20_out);
-      wera_cutout(w25_in, w25_out);
-      wera_cutout(w30_in, w30_out);
-      wera_cutout(w40_in, w40_out);
-      wera_cutout(w50_in, w50_out);
-      wera_cutout(w60_in, w60_out);
-    }
-  }
-}
+// up(3)
+// difference() {
+//   cube([87, 17, 6], anchor=BACK);
+//   left(40)  peg(15, negative=true);
+//   right(40) peg(15, negative=true);
+//   fwd(17/2) up(6/2) {
+//     xdistribute(spacing=4, sizes=[w15_out, w20_out, w25_out, w30_out, w40_out, w50_out, w60_out]) {
+//       wera_cutout(w15_in, w15_out);
+//       wera_cutout(w20_in, w20_out);
+//       wera_cutout(w25_in, w25_out);
+//       wera_cutout(w30_in, w30_out);
+//       wera_cutout(w40_in, w40_out);
+//       wera_cutout(w50_in, w50_out);
+//       wera_cutout(w60_in, w60_out);
+//     }
+//   }
+// }
